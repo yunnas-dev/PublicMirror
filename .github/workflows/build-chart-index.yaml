@@ -19,6 +19,9 @@ jobs:
         with:
           fetch-depth: 0
       
+      - name: Set execute permission for build.sh
+        run: chmod +x ./build.sh
+      
       - name: deploy index.yaml
         env:
           BASE_URL: https://public.charts.yunna.net
