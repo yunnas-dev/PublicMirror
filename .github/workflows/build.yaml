@@ -28,6 +28,12 @@ jobs:
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
+      - name: Update Helm chart dependencies
+        run: |
+          for chart in $(find ./src/main -name Chart.yaml -exec dirname {} \;); do
+            helm dependency update $chart
+          done
+
       - name: Package all Helm charts
         run: |
           for chart in $(find ./src/main -name Chart.yaml -exec dirname {} \;); do
