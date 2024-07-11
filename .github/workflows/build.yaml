@@ -48,14 +48,14 @@ jobs:
 
       - name: Configure git credentials
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           git config --global credential.helper store
-          echo "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com" > ~/.git-credentials
+          echo "https://${{ github.actor }}:${{ secrets.GH_TOKEN }}@github.com" > ~/.git-credentials
 
       - name: Push packaged charts to GitHub Pages
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           git clone --branch gh-pages https://github.com/jianzhis/PublicMirror gh-pages
           mv *.tgz gh-pages/
