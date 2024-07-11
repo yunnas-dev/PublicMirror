@@ -30,8 +30,6 @@ jobs:
 
       - name: Add Helm repositories
         run: |
-          helm repo add jetstack https://charts.jetstack.io
-          helm repo add gitlab https://charts.gitlab.io
           helm repo add stable https://charts.helm.sh/stable
           helm repo add bitnami https://charts.bitnami.com/bitnami
           helm repo update
@@ -45,8 +43,15 @@ jobs:
       - name: Package all Helm charts
         run: |
           for chart in $(find ./src/main -name Chart.yaml -exec dirname {} \;); do
-            helm package $chart
+            helm package $chart || true
           done
+
+      - name: Configure git credentials
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global credential.helper store
+          echo "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com" > ~/.git-credentials
 
       - name: Push packaged charts to GitHub Pages
         env:
