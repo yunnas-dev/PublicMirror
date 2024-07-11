@@ -24,7 +24,7 @@ jobs:
       
       - name: deploy index.yaml
         env:
-          BASE_URL: https://public.charts.yunna.net
+          BASE_URL: https://public-charts.yunna.net
         run: ./build.sh deploy_charts
 
       - name: Configure Git
