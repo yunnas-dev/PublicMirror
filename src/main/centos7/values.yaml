@@ -1,0 +1,36 @@
+replicaCount: 1
+
+image:
+  repository: centos
+  tag: "7"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  name: http
+
+readinessProbe:
+  path: "/"
+  initialDelaySeconds: 5
+  periodSeconds: 3
+  failureThreshold: 6
+
+livenessProbe:
+  path: "/"
+  initialDelaySeconds: 5
+  periodSeconds: 3
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

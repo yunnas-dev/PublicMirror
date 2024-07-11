@@ -1,42 +1,23 @@
-# Helm Charts for KubeSphere
+# 云纳应用云平台 Helm Charts
 
-## How to install these charts
+欢迎使用云纳应用云平台，这是一个集成了多个常用 Helm Charts 的项目，旨在简化 Kubernetes 应用的部署和管理。
 
-Find the repository you want to use under `src/` directory and enter below command:
+## 介绍
 
-```shell
-helm repo add main https://charts.kubesphere.io/main
-```
+云纳应用云平台包含以下 Helm Charts：
+- **MySQL**: 一个高性能的关系数据库管理系统。
+- **Nginx**: 一个高效的 HTTP 和反向代理服务器。
 
-## How to contribute
+## 前提条件
 
-### To an existing Helm repo
+- Kubernetes 1.10+ 版本
+- Helm 3.0.0+ 版本
 
-Just place your charts under the repo, e.g. 
+## 安装 Helm Charts
 
-```shell
-src/
-├── main/
-│   └── example-chart/
-│       ├── Chart.yaml
-│       ├── values.yaml
-│       ├── templates/
-│       └── ...
-```
+### 安装 MySQL
 
-### To a new Helm repo
-
-Just create a directory under `src/` for the new repo, and place your charts under it, e.g.
-
-```shell
-src/
-├── main/
-│   └── ...
-├── example-repo/
-│   └── example-chart/
-│       ├── Chart.yaml
-│       ├── values.yaml
-│       ├── templates/
-│       └── ...
-```
-
+```sh
+helm repo add public-charts https://public-charts.yunna.net
+helm repo update
+helm install my-mysql-release public-charts/mysql
