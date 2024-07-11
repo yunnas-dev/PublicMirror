@@ -22,6 +22,9 @@ jobs:
       - name: Set execute permission for build.sh
         run: chmod +x ./build.sh
       
+      - name: Create build directories
+        run: mkdir -p build/latest build/main
+
       - name: deploy index.yaml
         env:
           BASE_URL: https://public-charts.yunna.net
@@ -34,7 +37,7 @@ jobs:
       
       - name: Commit and Push to main
         run: |
-          git add build/latest/index.yaml
+          git add build/latest/index.yaml build/main/index.yaml
           git commit -m "Update Helm index"
           git push origin main
         if: ${{ github.ref == 'refs/heads/main' }}
