@@ -27,14 +27,14 @@ jobs:
           BASE_URL: https://public.charts.yunna.net
         run: ./build.sh deploy_charts
 
-      - uses: stefanzweifel/git-auto-commit-action@v4
-        name: commit to gh-pages when merging to main
+      - name: Configure Git
+        run: |
+          git config --global user.name "KubeSphere CI Bot"
+          git config --global user.email "ks-ci-bot@users.noreply.github.com"
+      
+      - name: Commit and Push to main
+        run: |
+          git add build/latest/index.yaml
+          git commit -m "Update Helm index"
+          git push origin main
         if: ${{ github.ref == 'refs/heads/main' }}
-        with:
-          commit_message: Automated Change
-          branch: gh-pages
-          commit_options: '--no-verify --signoff'
-          commit_user_name: KubeSphere CI Bot
-          commit_user_email: ks-ci-bot@users.noreply.github.com
-          commit_author: Author KubeSphere CI Bot <ks-ci-bot@users.noreply.github.com>
-          status_options: '--untracked-files=no'
