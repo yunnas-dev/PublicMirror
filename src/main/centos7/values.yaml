@@ -1,23 +1,29 @@
 replicaCount: 1
 
 image:
-  repository: centos
-  tag: "7"
+  repository: phusion/baseimage
+  tag: "latest"
   pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
-  port: 80
-  name: http
+  port: 22
+  name: ssh
 
 readinessProbe:
-  path: "/"
+  exec:
+    command:
+      - cat
+      - /etc/service/sshd/down
   initialDelaySeconds: 5
   periodSeconds: 3
   failureThreshold: 6
 
 livenessProbe:
-  path: "/"
+  exec:
+    command:
+      - cat
+      - /etc/service/sshd/down
   initialDelaySeconds: 5
   periodSeconds: 3
 
