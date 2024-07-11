@@ -1,0 +1,116 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: iomesh:blockdevice:editor
+rules:
+- apiGroups:
+  - openebs.io
+  resources:
+  - "*"
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: iomesh:manager
+  annotations:
+    helm.sh/resource-policy: keep
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - endpoints
+  - events
+  - pods
+  - services
+  - serviceaccounts
+  - persistentvolumeclaims
+  - secrets
+  verbs: ["*"]
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  - nodes/proxy
+  verbs: ["get", "list", "watch"]
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  - statefulsets
+  verbs: ["*"]
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  - rolebindings
+  - clusterroles
+  - clusterrolebindings
+  verbs: ["*"]
+- apiGroups:
+  - openebs.io
+  resources:
+  - "*"
+  verbs: ["*"]
+- apiGroups:
+  - iomesh.com
+  resources:
+  - "*"
+  verbs: ["*"]
+- apiGroups:
+  - zookeeper.pravega.io
+  resources:
+  - "*"
+  verbs:
+  - "*"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: iomesh:chunk
+  annotations:
+    helm.sh/resource-policy: keep
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "nodes", "nodes/proxy"]
+  verbs:     ["get", "list", "watch", "patch"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs:     ["get", "list", "watch"]
+- apiGroups: ["openebs.io"]
+  resources: ["*"]
+  verbs:     ["*"]
+- apiGroups: ["iomesh.com"]
+  resources: ["*"]
+  verbs:     ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: iomesh:apiserver
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - mutatingwebhookconfigurations
+  - validatingwebhookconfigurations
+  verbs:
+  - get
+  - list
+  - watch

@@ -1,0 +1,92 @@
+{{- $storageType := .Values.config.storage.type }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "databend-query.fullname" . }}
+  labels:
+    {{- include "databend-query.labels" . | nindent 4 }}
+data:
+  config.toml: |-
+    # databend query config
+    [query]
+      max_active_sessions = {{ .Values.config.query.maxActiveSessions | default 1024 }}
+      wait_timeout_mills = {{ .Values.config.query.waitTimeoutMills | default 5000 }}
+
+      tenant_id = {{ .Values.config.query.tenantId | default .Release.Name | quote }}
+      cluster_id = {{ .Values.config.query.clusterId | quote }}
+
+      management_mode = {{ .Values.config.query.managementMode }}
+      jwt_key_file = {{ .Values.config.query.jwtKeyFile | quote }}
+
+      max_server_memory_usage = {{ .Values.config.query.maxServerMemoryUsage | default 0 }}
+      max_memory_limit_enabled = {{ .Values.config.query.maxMemoryLimitEnabled | default false }}
+
+      {{- range $field, $value := .Values.config.query.extra }}
+      {{- if (kindIs "string" $value) }}
+      {{ $field }} = {{ $value | quote }}
+      {{- else }}
+      {{ $field }} = {{ $value }}
+      {{- end }}
+      {{- end }}
+
+      {{- range .Values.config.query.users }}
+      [[query.users]]
+        name = {{ .name | quote }}
+        auth_type = {{ .authType | quote }}
+        {{- if eq .authType "sha256_password"}}
+        auth_string = {{ .authString | quote }}
+        {{- else if eq .authType "double_sha1_password"}}
+        auth_string = {{ .authString | quote }}
+        {{- end }}
+      {{- end }}
+
+    [log]
+      [log.file]
+        on = {{ .Values.config.log.file.enabled }}
+        level = {{ .Values.config.log.file.level | default "INFO" | quote }}
+        dir = {{ .Values.config.log.file.dir | default "/var/log/databend" | quote }}
+      [log.stderr]
+        on = {{ .Values.config.log.stderr.enabled }}
+        level = {{ .Values.config.log.stderr.level | default "WARN" | quote }}
+
+    [meta]
+      endpoints = [{{ range .Values.config.meta.endpoints }}{{ . | quote }},{{ end }}]
+      username = {{ .Values.config.meta.username | quote }}
+      password = {{ .Values.config.meta.password | quote }}
+      client_timeout_in_second = {{ .Values.config.meta.clientTimeoutInSecond | default 60 }}
+
+    [storage]
+      type = {{ $storageType | quote }}
+      allow_insecure = {{ .Values.config.storage.allow_insecure | default false }}
+
+      {{- if eq $storageType "s3"}}
+      [storage.s3]
+        {{- range $field, $value := .Values.config.storage.s3 }}
+        {{- if (kindIs "string" $value) }}
+        {{ $field }} = {{ $value | quote }}
+        {{- else }}
+        {{ $field }} = {{ $value }}
+        {{- end }}
+        {{- end }}
+      {{- else }}
+      [storage.{{ $storageType }}]
+        {{- range $name, $configs := .Values.config.storage }}
+        {{- if eq $name $storageType }}
+        {{- range $field, $value := $configs }}
+        {{- if (kindIs "string" $value) }}
+        {{ $field }} = {{ $value | quote }}
+        {{- else }}
+        {{ $field }} = {{ $value }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+      {{- end }}
+
+    {{- if .Values.cache.enabled }}
+    [cache]
+      data_cache_storage = "disk"
+      [cache.disk]
+        path = {{ .Values.cache.path | default "/var/lib/databend/cache" | quote }}
+        max_bytes = {{ .Values.cache.maxBytes | default 21474836480 | int64 }}
+    {{- end }}
