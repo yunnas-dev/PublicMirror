@@ -1,3 +1,0 @@
-%%Instructions to access the application depending on the serviceType and other considerations%%
-
-{{- include "common.warnings.rollingTag" .Values.vSphereCPI.image }}
