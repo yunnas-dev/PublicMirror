@@ -1,0 +1,15 @@
+apiVersion: v1               # API 版本
+kind: Service                # 资源类型
+metadata:
+  name: {{ include "centos8.fullname" . }}  # 服务名称，使用模板函数生成
+  labels:
+    {{- include "centos8.labels" . | nindent 4 }}  # 服务标签，使用模板函数生成
+spec:
+  type: {{ .Values.service.type }}  # 服务类型，从 values.yaml 中获取
+  ports:
+    - port: 80                    # 服务端口
+      targetPort: 80              # 目标容器端口
+      protocol: TCP               # 通信协议
+      name: http                  # 端口名称
+  selector:
+    {{- include "centos8.selectorLabels" . | nindent 4 }}  # 选择器标签，使用模板函数生成
