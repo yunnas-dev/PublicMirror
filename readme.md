@@ -1,23 +1,57 @@
-# 云纳应用云平台 Helm Charts
+当然可以。以下是更新后的介绍，其中包括了Helm的教程和规范部分。
 
-欢迎使用云纳应用云平台，这是一个集成了多个常用 Helm Charts 的项目，旨在简化 Kubernetes 应用的部署和管理。
+# 欢迎来到云纳（Yunna） 🌐
 
-## 介绍
+## 介绍 📘
 
-云纳应用云平台包含以下 Helm Charts：
-- **MySQL**: 一个高性能的关系数据库管理系统。
-- **Nginx**: 一个高效的 HTTP 和反向代理服务器。
+欢迎加入云纳——一个革命性的云技术平台，专注于通过[Helm](https://helm.sh/)简化应用部署。我们的[云纳应用市场](https://github.com/yunnas/yunna-store)提供了丰富的Helm Chart模板，使开发者和企业能够在我们的平台上快速部署热门项目。探索我们的平台 [yunna.net](https://yunna.net/) 了解更多。
 
-## 前提条件
+## 积分奖励计划 🏆
 
-- Kubernetes 1.10+ 版本
-- Helm 3.0.0+ 版本
+为了鼓励社区成员参与和贡献，云纳推出了积分奖励计划。参与应用商店的Helm Chart编写，不仅可以帮助社区成员更轻松地部署应用，还可以获得云纳平台积分。积分可以用于兑换Helm服务的续费或购买，让您的开发旅程更加顺畅。
 
-## 安装 Helm Charts
+## 快速部署热门项目 ⚡
 
-### 安装 MySQL
+在云纳应用市场，您可以找到众多热门的项目，如WordPress、Nextcloud、GitLab等，所有这些都可以通过几次点击在云纳平台上快速部署。我们致力于提供最便捷的部署体验，让您无需担心后端配置，专注于创造。
 
-```sh
-helm repo add public-charts https://public-charts.yunna.net
-helm repo update
-helm install my-mysql-release public-charts/mysql
+## 如何贡献 🤲
+
+我们欢迎并鼓励社区成员对[云纳应用市场](https://github.com/yunnas/yunna-store)进行贡献。无论是通过提交新的Helm Chart，还是通过改进现有Chart，您的贡献都将直接支持和丰富我们的应用生态。
+
+- **提交新Chart**：分享您的Helm Chart，帮助社区发现新的应用。
+- **改进现有Chart**：优化和更新现有的Chart，提高应用部署的效率和稳定性。
+
+### Helm教程和规范 📚
+
+为了帮助开发者更好地使用Helm，我们提供了详细的教程和规范：
+
+#### 1. Helm基础教程
+- **安装Helm**：在不同平台上安装和配置Helm。
+- **创建Chart**：从头开始创建一个Helm Chart。
+- **部署应用**：使用Helm Chart部署和管理Kubernetes应用。
+
+详细教程请访问我们的[Helm教程页面](https://yunna.net/helm-tutorial)。
+
+#### 2. 编写高质量的Helm Chart规范
+- **目录结构**：确保Chart具有标准化的目录结构，包括`Chart.yaml`、`values.yaml`、`templates`等。
+- **模板文件**：使用Helm模板语言编写灵活且可配置的模板文件。
+- **最佳实践**：遵循Helm官方和社区推荐的最佳实践，编写高效、可维护的Chart。
+
+查看完整的Helm Chart规范和最佳实践指南，请访问我们的[Helm规范页面](https://yunna.net/helm-guidelines)。
+
+## 加入我们的社区 👥
+
+云纳致力于建立一个活跃、支持性的开发者社区。我们邀请您加入我们，一起探索云计算的未来，共享知识，解决挑战。
+
+- **社交媒体**：关注我们在[Twitter](https://twitter.com/)上的动态，获取最新信息。
+- **即时通讯群组**：加入我们的Slack或Discord群组，与其他开发者交流和合作。
+
+## 开始探索 🚀
+
+探索[云纳平台](https://yunna.net/)，利用我们的技术和资源，快速部署和管理您的应用。通过参与和贡献，不仅可以帮助社区成长，还可以为您自己赢得有价值的奖励。
+
+一起，我们不仅可以简化云应用的部署，还可以共同推动开源和容器技术的发展。
+
+---
+
+© 云纳（Yunnas）- 开启云计算的无限可能。✨
