@@ -1,6 +1,7 @@
 replicaCount: 1
 
 image:
+  registry: registry.yunna.net
   repository: phusion/baseimage
   tag: "latest"
   pullPolicy: IfNotPresent
