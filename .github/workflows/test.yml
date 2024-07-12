@@ -50,7 +50,7 @@ jobs:
       - name: Package all Helm charts
         run: |
           mkdir -p charts
-          cat chart-versions.yaml | yq e '.charts.centos[]' - | while read chart; do
+          for chart in $(yq e '.charts.centos[]' chart-versions.yaml); do
             version=$(echo $chart | yq e '.version' -)
             appVersion=$(echo $chart | yq e '.appVersion' -)
             valuesFile=$(echo $chart | yq e '.valuesFile' -)
