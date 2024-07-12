@@ -44,9 +44,8 @@ jobs:
 
       - name: Package all Helm charts
         run: |
-          for chart in $(find ./src/main -name Chart.yaml -exec dirname {} \;); do
-            helm package $chart || true
-          done
+          helm package src/main/centos --version 1.0.0 --app-version 7 -d charts --values src/main/centos/values-centos7.yaml
+          helm package src/main/centos --version 1.0.1 --app-version 8 -d charts --values src/main/centos/values-centos8.yaml
 
       - name: Configure git credentials
         env:
@@ -61,7 +60,7 @@ jobs:
         run: |
           git clone --branch gh-pages https://github.com/jianzhis/PublicMirror gh-pages
           mkdir -p gh-pages/test
-          mv *.tgz gh-pages/test/
+          mv charts/*.tgz gh-pages/test/
           cd gh-pages
           helm repo index test --url https://jianzhis.github.io/PublicMirror/test
           git add .
