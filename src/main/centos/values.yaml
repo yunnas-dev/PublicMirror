@@ -2,7 +2,7 @@ replicaCount: 1  # 部署的副本数量
 
 image:
   repository: registry.yunna.net/centos  # 私有镜像仓库地址
-  tag: "8"  # 指定 CentOS 8 的镜像标签
+  tag: "8"  # 默认 CentOS 版本
   pullPolicy: IfNotPresent  # 镜像拉取策略（如果镜像不存在则拉取）
 
 service:
@@ -17,8 +17,7 @@ tolerations: []  # 容忍，允许 Pod 调度到带有特定污点的节点
 
 affinity: {}  # 亲和性规则，用于控制 Pod 调度
 
-# 定义要安装的工具包列表
-tools:
+tools:  # 定义要安装的工具包列表
   - vim
   - curl
   - wget
