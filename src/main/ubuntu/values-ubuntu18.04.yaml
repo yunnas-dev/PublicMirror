@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: http://registry.yunna.net/ubuntu
-  tag: "20.04"
+  tag: "18.04"
   pullPolicy: IfNotPresent
 
 service:
