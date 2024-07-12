@@ -25,6 +25,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y curl git
 
+      - name: Install yq
+        run: |
+          sudo wget https://github.com/mikefarah/yq/releases/download/v4.9.8/yq_linux_amd64 -O /usr/bin/yq
+          sudo chmod +x /usr/bin/yq
+
       - name: Configure git
         run: |
           git config --global user.name 'github-actions[bot]'
@@ -44,8 +49,13 @@ jobs:
 
       - name: Package all Helm charts
         run: |
-          helm package src/main/centos --version 1.0.0 --app-version 7 -d charts
-          helm package src/main/centos --version 1.0.1 --app-version 8 -d charts
+          mkdir -p charts
+          cat chart-versions.yaml | yq e '.charts.centos[]' - | while read chart; do
+            version=$(echo $chart | yq e '.version' -)
+            appVersion=$(echo $chart | yq e '.appVersion' -)
+            valuesFile=$(echo $chart | yq e '.valuesFile' -)
+            helm package src/main/centos --version $version --app-version $appVersion -d charts
+          done
 
       - name: Configure git credentials
         env:
