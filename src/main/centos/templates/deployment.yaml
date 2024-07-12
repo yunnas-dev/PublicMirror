@@ -1,18 +1,18 @@
 apiVersion: apps/v1  # API 版本
 kind: Deployment  # 资源类型
 metadata:
-  name: {{ include "centos8.fullname" . }}  # 部署名称，使用模板函数生成
+  name: {{ include "centos.fullname" . }}  # 部署名称，使用模板函数生成
   labels:
-    {{- include "centos8.labels" . | nindent 4 }}  # 部署标签，使用模板函数生成
+    {{- include "centos.labels" . | nindent 4 }}  # 部署标签，使用模板函数生成
 spec:
   replicas: {{ .Values.replicaCount }}  # 副本数量，从 values.yaml 中获取
   selector:
     matchLabels:
-      {{- include "centos8.selectorLabels" . | nindent 6 }}  # 选择器标签，使用模板函数生成
+      {{- include "centos.selectorLabels" . | nindent 6 }}  # 选择器标签，使用模板函数生成
   template:
     metadata:
       labels:
-        {{- include "centos8.selectorLabels" . | nindent 8 }}  # Pod 标签，使用模板函数生成
+        {{- include "centos.selectorLabels" . | nindent 8 }}  # Pod 标签，使用模板函数生成
     spec:
       containers:
         - name: {{ .Chart.Name }}  # 容器名称，使用 Chart 名称

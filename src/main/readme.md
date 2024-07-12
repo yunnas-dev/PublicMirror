@@ -24,4 +24,9 @@ src/
 │       ├── templates/
 │       └── ...
 ```
+部署 Helm Chart
+# 部署 CentOS 8
+helm install my-centos ./centos-chart --set image.tag="8"
 
+# 部署 CentOS 7
+helm install my-centos ./centos-chart --set image.tag="7"
