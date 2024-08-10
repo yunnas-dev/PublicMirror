@@ -1,0 +1,19 @@
+replicaCount: 1
+
+image:
+  repository: registry.yunna.net/centos
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+  name: http
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
