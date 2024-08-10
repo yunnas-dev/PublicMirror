@@ -1,8 +1,5 @@
 charts:
   centos:
-    - version: "1.0.0"
+    - version: "1.0.1"
       appVersion: "7"
       valuesFile: "values-centos7.yaml"
-    - version: "1.0.1"
-      appVersion: "8"
-      valuesFile: "values-centos8.yaml"
