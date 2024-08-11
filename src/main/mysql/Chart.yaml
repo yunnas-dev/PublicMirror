@@ -12,8 +12,7 @@ keywords:
 maintainers:
 - email: o.with@sportradar.com
   name: olemarkus
-- email: viglesias@google.com
-  name: viglesiasce
+- name: 数据库
 name: mysql
 sources:
 - https://github.com/kubernetes/charts
