@@ -8,6 +8,7 @@ icon: https://www.centos.org/assets/img/centos-logo.png
 maintainers:
 - name: Ms.xu
   email: your-email@example.com
+- name: 操作系统
 sources:
 - https://github.com/jianzhis/PublicMirror
 annotations:

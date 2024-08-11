@@ -1,0 +1,10 @@
+image:
+  tag: "8"
+service:
+  port: 80
+  name: http
+tools:
+  - vim
+  - curl
+  - wget
+  - net-tools

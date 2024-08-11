@@ -1,0 +1,22 @@
+replicaCount: 1
+
+image:
+  repository: http://registry.yunna.net/ubuntu
+  tag: "18.04"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+      paths: ["/"]
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
