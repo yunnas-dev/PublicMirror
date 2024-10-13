@@ -10,7 +10,8 @@ sources:
 - https://github.com/kubesphere/helm-charts/tree/master/src/main/nginx
 version: 1.3.5
 annotations:
-  "yunna.net/category": "Networking"
+  "yunna.net/category": "Web Server"
+  "yunna.net/category-zh": "Web服务器"
 keywords:
   - networking
   - reverse proxy
