@@ -1,0 +1,28 @@
+replicaCount: 1
+
+image:
+  repository: registry-2.yunna.net/itzg/minecraft-server
+  tag: ""  # 默认为空,表示不指定标签
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  port: 25565
+  nodePort: 32025
+
+persistence:
+  storageClass: "local"
+  size: 10Gi
+
+resources:
+  requests:
+    memory: 1Gi
+    cpu: 500m
+  limits:
+    memory: 2Gi
+    cpu: 1
+
+minecraftServer:
+  eula: "TRUE"
+  type: "PAPER"
+  memory: "1G"
