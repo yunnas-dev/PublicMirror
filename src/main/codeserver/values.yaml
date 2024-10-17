@@ -1,0 +1,33 @@
+# Image configuration
+image:
+  repository: lscr.io/linuxserver/code-server
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Container environment variables
+env:
+  PUID: 1000
+  PGID: 1000
+  TZ: Asia/Shanghai                 # 更新时区为上海时区
+  PASSWORD: "password"              # Change as needed
+  HASHED_PASSWORD: ""               # Optional
+  SUDO_PASSWORD: "password"         # Optional
+  SUDO_PASSWORD_HASH: ""            # Optional
+  PROXY_DOMAIN: "code-server.my.domain" # Optional
+  DEFAULT_WORKSPACE: "/config/workspace" # Optional
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 8443
+
+# Persistent volume for /config
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  storageClass: "" # Optional: specify your storage class
+  path: /config
+
+# Restart policy
+restartPolicy: "Always"
