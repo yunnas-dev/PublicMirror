@@ -1,0 +1,29 @@
+apiVersion: v2
+name: cloudreve
+version: 0.1.0
+kubeVersion: ^1.8.0-0
+description: Self-hosted file management and sharing system, supports multiple storage providers.
+type: application
+home: https://cloudreve.org/
+sources:
+  - https://github.com/cloudreve/Cloudreve
+maintainers:
+  - email: phenix3443@gmail.com
+    name: phenix3443
+    url: https://blog.panghuli.cn/
+icon: https://raw.githubusercontent.com/cloudreve/frontend/master/public/static/img/logo192.png
+appVersion: "3.8.0"
+annotations:
+  artifacthub.io/category: storage
+  artifacthub.io/changes: |
+    - kind: added
+      description: init
+      links:
+        - name: repo
+          url: https://github.com/phenix3443/charts
+  artifacthub.io/license: AGPL-3.0-only
+  artifacthub.io/links: |
+    - name: support
+      url: https://github.com/phenix3443/charts
+    - name: Upstream Project
+      url: https://github.com/cloudreve/Cloudreve
