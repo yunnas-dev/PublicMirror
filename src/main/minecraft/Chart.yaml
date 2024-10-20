@@ -16,6 +16,10 @@ maintainers:
   - name: Minecraft Community
     email: support@minecraft.net
 
+annotations:
+  "yunna.net/category": "Game Server"
+  "yunna.net/category-zh": "游戏服务器"
+
 keywords:
   - Minecraft
   - Sandbox Game

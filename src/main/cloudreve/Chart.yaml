@@ -17,6 +17,10 @@ maintainers:
   - name: Sekey
     email: sekey@yunna.net
 
+annotations:
+  "yunna.net/category": "Web Storage"
+  "yunna.net/category-zh": "云存儲"
+
 keywords:
   - 云存储
   - 自托管
