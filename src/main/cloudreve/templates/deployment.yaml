@@ -1,35 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "cloudreve.fullname" . }}
-  labels:
-    {{- include "cloudreve.labels" . | nindent 4 }}
+  name: {{ .Release.Name }}-cloudreve
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
-      {{- include "cloudreve.selectorLabels" . | nindent 6 }}
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        {{- include "cloudreve.selectorLabels" . | nindent 8 }}
+        app: {{ .Release.Name }}
     spec:
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - containerPort: 5212
-              name: http
-          env:
-            {{- range .Values.env }}
-            - name: {{ .name }}
-              value: {{ .value | quote }}
-            {{- end }}
+        - name: cloudreve
+          image: cloudreve/cloudreve:latest
           volumeMounts:
-            - name: data
+            - name: storage
               mountPath: /cloudreve/uploads
       volumes:
-        - name: data
+        - name: storage
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.existingClaim | default (include "cloudreve.fullname" .) }}
+            claimName: {{ .Release.Name }}-cloudreve-pvc
