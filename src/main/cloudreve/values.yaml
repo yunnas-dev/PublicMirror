@@ -11,7 +11,7 @@ mysql:
   password: cloudreve_password
   database: cloudreve_db
   rootPassword: root_password
-  storageSize: 10Gi
+  storageSize: 5Gi
 
 admin:
   email: admin@cloudreve.com
@@ -20,7 +20,7 @@ admin:
 persistence:
   enabled: true
   storageClassName: "local"  # 使用 local 存储类
-  size: 10Gi
+  size: 3Gi
   accessModes:
     - ReadWriteOnce
 
