@@ -8,7 +8,7 @@ spec:
   resources:
     requests:
       storage: {{ .Values.mysql.storageSize }}
-  storageClassName: {{ .Values.persistence.storageClassName }}
+  storageClassName: {{ .Values.persistence.storageClassName }}  # 使用 local
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -20,4 +20,4 @@ spec:
   resources:
     requests:
       storage: {{ .Values.persistence.size }}
-  storageClassName: {{ .Values.persistence.storageClassName }}
+  storageClassName: {{ .Values.persistence.storageClassName }}  # 使用 local
