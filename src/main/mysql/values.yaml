@@ -1,0 +1,28 @@
+mysqlRootPassword: "root_password"
+mysqlUser: "user"
+mysqlPassword: "user_password"
+mysqlDatabase: "my_database"
+
+replicaCount: 1
+image:
+  repository: mysql
+  tag: 8.0
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3306
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 5Gi
+  storageClass: ""
