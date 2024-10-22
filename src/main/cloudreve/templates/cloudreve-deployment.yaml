@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudreve
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: cloudreve
+  template:
+    metadata:
+      labels:
+        app: cloudreve
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.28
+          command: ['sh', '-c', 'until nc -z mysql 3306; do sleep 2; done']
+      containers:
+        - name: cloudreve
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          env:
+            - name: DB_HOST
+              value: "mysql"
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_USER
+              value: "{{ .Values.mysql.username }}"
+            - name: DB_PASSWORD
+              value: "{{ .Values.mysql.password }}"
+            - name: DB_NAME
+              value: "{{ .Values.mysql.database }}"
+            - name: ADMIN_EMAIL
+              value: "{{ .Values.admin.email }}"
+            - name: ADMIN_PASSWORD
+              value: "{{ .Values.admin.password }}"
+          ports:
+            - containerPort: 5212
+          volumeMounts:
+            - name: uploads
+              mountPath: /cloudreve/uploads
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: cloudreve-pvc

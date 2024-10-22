@@ -1,5 +1,0 @@
-image:
-  tag: "7"
-service:
-  port: 22
-  name: ssh

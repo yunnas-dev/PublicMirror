@@ -1,0 +1,34 @@
+replicaCount: 1
+
+image:
+  repository: cloudreve/cloudreve
+  tag: "3.8.0"
+  pullPolicy: IfNotPresent
+
+mysql:
+  image: mysql:5.7
+  username: cloudreve
+  password: cloudreve_password
+  database: cloudreve_db
+  rootPassword: root_password
+  storageSize: 5Gi
+
+admin:
+  email: admin@cloudreve.com
+  password: securepassword
+
+persistence:
+  enabled: true
+  storageClassName: "local"  # 使用 local 存储类
+  size: 3Gi
+  accessModes:
+    - ReadWriteOnce
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 5212
+
+ingress:
+  enabled: false
+  hostname: "cloudreve.local"
