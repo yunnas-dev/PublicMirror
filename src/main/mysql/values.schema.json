@@ -1,41 +1,62 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$schema": "https://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
       "mysqlRootPassword": {
         "type": "string",
+        "title": "MySQL Root Password",
+        "form": true,
+        "minLength": 8,
         "description": "The root password for MySQL."
       },
       "mysqlUser": {
         "type": "string",
+        "title": "MySQL Username",
+        "form": true,
         "description": "The username for MySQL user."
       },
       "mysqlPassword": {
         "type": "string",
+        "title": "MySQL User Password",
+        "form": true,
+        "minLength": 8,
         "description": "The password for MySQL user."
       },
       "mysqlDatabase": {
         "type": "string",
+        "title": "MySQL Database Name",
+        "form": true,
         "description": "The name of the database to create."
       },
       "replicaCount": {
         "type": "integer",
-        "description": "Number of MySQL replicas to deploy.",
-        "default": 1
+        "title": "Replicas Count",
+        "form": true,
+        "minimum": 1,
+        "default": 1,
+        "description": "Number of MySQL replicas to deploy."
       },
       "image": {
         "type": "object",
+        "title": "MySQL Image Configuration",
+        "form": true,
         "properties": {
           "repository": {
             "type": "string",
+            "title": "Image Repository",
+            "form": true,
             "description": "MySQL image repository."
           },
           "tag": {
             "type": "string",
+            "title": "Image Tag",
+            "form": true,
             "description": "MySQL image tag."
           },
           "pullPolicy": {
             "type": "string",
+            "title": "Image Pull Policy",
+            "form": true,
             "enum": ["Always", "IfNotPresent", "Never"],
             "description": "Image pull policy."
           }
@@ -44,14 +65,20 @@
       },
       "service": {
         "type": "object",
+        "title": "MySQL Service Configuration",
+        "form": true,
         "properties": {
           "type": {
             "type": "string",
+            "title": "Service Type",
+            "form": true,
             "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
-            "description": "Service type."
+            "description": "Service type for MySQL."
           },
           "port": {
             "type": "integer",
+            "title": "Service Port",
+            "form": true,
             "description": "Service port for MySQL."
           }
         },
@@ -59,22 +86,33 @@
       },
       "persistence": {
         "type": "object",
+        "title": "Persistence Configuration",
+        "form": true,
         "properties": {
           "enabled": {
             "type": "boolean",
-            "description": "Enable persistent storage."
+            "title": "Enable Persistence",
+            "form": true,
+            "default": true,
+            "description": "Enable or disable persistent storage for MySQL."
           },
           "accessMode": {
             "type": "string",
+            "title": "Access Mode",
+            "form": true,
             "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"],
-            "description": "Access mode for the volume."
+            "description": "Access mode for the persistent volume."
           },
           "size": {
             "type": "string",
+            "title": "Volume Size",
+            "form": true,
             "description": "Size of the persistent volume."
           },
           "storageClass": {
             "type": "string",
+            "title": "Storage Class",
+            "form": true,
             "description": "StorageClass to use for the persistent volume."
           }
         },
