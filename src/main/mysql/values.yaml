@@ -5,9 +5,8 @@ mysqlDatabase: "my_database"
 
 replicaCount: 1
 image:
-  repository: mysql
+  repository: registry-2.yunna.net/mysql
   tag: 8.0
-  pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
@@ -25,4 +24,4 @@ persistence:
   enabled: true
   accessMode: ReadWriteOnce
   size: 5Gi
-  storageClass: ""
+  storageClass: "local"
