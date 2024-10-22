@@ -4,116 +4,128 @@
     "properties": {
       "mysqlRootPassword": {
         "type": "string",
-        "title": "MySQL Root Password",
+        "title": "MySQL Root 密码",
         "form": true,
         "minLength": 8,
-        "description": "The root password for MySQL."
+        "default": "rootpassword",
+        "description": "MySQL root 用户的密码。"
       },
       "mysqlUser": {
         "type": "string",
-        "title": "MySQL Username",
+        "title": "MySQL 用户名",
         "form": true,
-        "description": "The username for MySQL user."
+        "default": "user",
+        "description": "MySQL 用户的用户名。"
       },
       "mysqlPassword": {
         "type": "string",
-        "title": "MySQL User Password",
+        "title": "MySQL 用户密码",
         "form": true,
         "minLength": 8,
-        "description": "The password for MySQL user."
+        "default": "password",
+        "description": "MySQL 用户的密码。"
       },
       "mysqlDatabase": {
         "type": "string",
-        "title": "MySQL Database Name",
+        "title": "MySQL 数据库名称",
         "form": true,
-        "description": "The name of the database to create."
+        "default": "mydb",
+        "description": "要创建的数据库名称。"
       },
       "replicaCount": {
         "type": "integer",
-        "title": "Replicas Count",
+        "title": "副本数量",
         "form": true,
         "minimum": 1,
         "default": 1,
-        "description": "Number of MySQL replicas to deploy."
+        "description": "要部署的 MySQL 副本数量。"
       },
       "image": {
         "type": "object",
-        "title": "MySQL Image Configuration",
+        "title": "MySQL 镜像配置",
         "form": true,
         "properties": {
           "repository": {
             "type": "string",
-            "title": "Image Repository",
+            "title": "镜像仓库",
             "form": true,
-            "description": "MySQL image repository."
+            "default": "mysql",
+            "description": "MySQL 镜像的仓库地址。"
           },
           "tag": {
             "type": "string",
-            "title": "Image Tag",
+            "title": "镜像标签",
             "form": true,
-            "description": "MySQL image tag."
+            "default": "8.0",
+            "description": "MySQL 镜像的标签。"
           },
           "pullPolicy": {
             "type": "string",
-            "title": "Image Pull Policy",
+            "title": "镜像拉取策略",
             "form": true,
             "enum": ["Always", "IfNotPresent", "Never"],
-            "description": "Image pull policy."
+            "default": "IfNotPresent",
+            "description": "镜像的拉取策略。"
           }
         },
         "required": ["repository", "tag"]
       },
       "service": {
         "type": "object",
-        "title": "MySQL Service Configuration",
+        "title": "MySQL 服务配置",
         "form": true,
         "properties": {
           "type": {
             "type": "string",
-            "title": "Service Type",
+            "title": "服务类型",
             "form": true,
             "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
-            "description": "Service type for MySQL."
+            "default": "ClusterIP",
+            "description": "MySQL 服务的类型。"
           },
           "port": {
             "type": "integer",
-            "title": "Service Port",
+            "title": "服务端口",
             "form": true,
-            "description": "Service port for MySQL."
+            "default": 3306,
+            "description": "MySQL 服务的端口号。"
           }
         },
         "required": ["type", "port"]
       },
       "persistence": {
         "type": "object",
-        "title": "Persistence Configuration",
+        "title": "持久化配置",
         "form": true,
         "properties": {
           "enabled": {
             "type": "boolean",
-            "title": "Enable Persistence",
+            "title": "启用持久化存储",
             "form": true,
             "default": true,
-            "description": "Enable or disable persistent storage for MySQL."
+            "description": "启用或禁用 MySQL 的持久化存储。"
           },
           "accessMode": {
             "type": "string",
-            "title": "Access Mode",
+            "title": "访问模式",
             "form": true,
             "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"],
-            "description": "Access mode for the persistent volume."
+            "default": "ReadWriteOnce",
+            "description": "持久卷的访问模式。"
           },
           "size": {
             "type": "string",
-            "title": "Volume Size",
+            "title": "存储卷大小",
             "form": true,
-            "description": "Size of the persistent volume."
+            "default": "8Gi",
+            "description": "持久卷的大小。"
           },
           "storageClass": {
             "type": "string",
-            "title": "Storage Class",
+            "title": "存储类",
             "form": true,
-            "description": "StorageClass to use for the persistent volume."
+            "default": "standard",
+            "description": "要使用的存储类。"
           }
         },
         "required": ["enabled", "accessMode", "size"]
