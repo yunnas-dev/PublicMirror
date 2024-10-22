@@ -23,8 +23,8 @@ maintainers:
     email: community@mysql.com
 
 annotations:
-  "app.kubesphere.io/category": "Database & Cache"
-  "app.kubesphere.io/category-zh": "数据库"
+  "yunna.net/category": "Database & Cache"
+  "yunna.net/category-zh": "数据库"
 
 keywords:
   - MySQL

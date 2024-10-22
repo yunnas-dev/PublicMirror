@@ -21,8 +21,8 @@ maintainers:
     email: community@centos.org
 
 annotations:
-  "app.kubesphere.io/category": "Base Operating System"
-  "app.kubesphere.io/category-zh": "基础操作系统"
+  "yunna.net/category": "Base Operating System"
+  "yunna.net/category-zh": "基础操作系统"
 
 keywords:
   - CentOS
