@@ -1,5 +1,21 @@
 apiVersion: v2
-name: my-mysql-chart
-description: A Helm chart for MySQL deployment with persistent volume
+name: mysql
+description: MySQL是一种流行的开源关系型数据库管理系统，广泛用于存储和管理结构化数据。
 version: 0.1.0
 appVersion: 8.0
+icon: https://www.mysql.com/common/logos/mysql-logo.svg
+maintainers:
+  - name: 云纳科技
+    email: email@yunna.net
+sources:
+  - https://github.com/jianzhis/PublicMirror/tree/main/src/main/mysql
+annotations:
+  "yunna.net/category": "Database"
+  "yunna.net/category-zh": "数据库"
+keywords:
+  - database
+  - sql
+  - mysql
+  - relational database
+  - persistent storage
+  - db
