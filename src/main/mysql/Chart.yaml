@@ -1,35 +1,21 @@
 apiVersion: v2
 name: mysql
-description: |
-  MySQL is a fast, reliable, scalable, and easy-to-use open-source relational database management system. 
-  It is commonly used for web applications, data warehousing, and as a component of the LAMP software stack.
-  This Helm chart deploys a MySQL server on Kubernetes, making it suitable for a variety of production workloads, 
-  offering high availability, replication, and backup features.
-type: application
-version: 2.0.0
-appVersion: 5.7.31
+description: MySQL是一种流行的开源关系型数据库管理系统，广泛用于存储和管理结构化数据。
+version: 1.6.7
+appVersion: 8.0
 icon: https://www.mysql.com/common/logos/mysql-logo.svg
-
-home: https://www.mysql.com/
-sources:
-  - https://github.com/kubernetes/charts
-  - https://github.com/docker-library/mysql
-  - https://dev.mysql.com/doc/
-
 maintainers:
-  - name: Olemarkus
-    email: o.with@sportradar.com
-  - name: MySQL Community
-    email: community@mysql.com
-
+  - name: Sekey
+    email: Sekey@yunna.net
+sources:
+  - https://github.com/jianzhis/PublicMirror/tree/main/src/main/mysql
 annotations:
-  "yunna.net/category": "Database & Cache"
+  "yunna.net/category": "Database"
   "yunna.net/category-zh": "数据库"
-
 keywords:
-  - MySQL
-  - Relational Database
-  - SQL
-  - Database
-  - Open Source
-  - Kubernetes
+  - database
+  - sql
+  - mysql
+  - relational database
+  - persistent storage
+  - db
