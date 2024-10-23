@@ -33,6 +33,81 @@
         "title": "MySQL 数据库名称",
         "description": "新建的数据库名称",
         "default": "mydatabase"
+      },
+      "persistence": {
+        "type": "object",
+        "title": "持久化存储配置",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "accessMode": {
+            "type": "string",
+            "default": "ReadWriteOnce"
+          },
+          "size": {
+            "type": "string",
+            "default": "8Gi"
+          }
+        }
+      },
+      "resources": {
+        "type": "object",
+        "title": "资源请求和限制",
+        "properties": {
+          "requests": {
+            "type": "object",
+            "properties": {
+              "memory": {
+                "type": "string",
+                "default": "256Mi"
+              },
+              "cpu": {
+                "type": "string",
+                "default": "100m"
+              }
+            }
+          }
+        }
+      },
+      "securityContext": {
+        "type": "object",
+        "title": "安全上下文配置",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "service": {
+        "type": "object",
+        "title": "服务配置",
+        "properties": {
+          "type": {
+            "type": "string",
+            "default": "ClusterIP"
+          },
+          "port": {
+            "type": "integer",
+            "default": 3306
+          }
+        }
+      },
+      "ssl": {
+        "type": "object",
+        "title": "SSL 配置",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": false
+          },
+          "secret": {
+            "type": "string",
+            "default": "mysql-ssl-certs"
+          }
+        }
       }
     },
     "required": [
