@@ -1,21 +1,23 @@
-apiVersion: v2
-name: mysql
-description: MySQL是一种流行的开源关系型数据库管理系统，广泛用于存储和管理结构化数据。
-version: 1.6.7
-appVersion: 8.0
-icon: https://www.mysql.com/common/logos/mysql-logo.svg
-maintainers:
-  - name: Sekey
-    email: Sekey@yunna.net
-sources:
-  - https://github.com/jianzhis/PublicMirror/tree/main/src/main/mysql
-annotations:
-  "yunna.net/category": "Database"
-  "yunna.net/category-zh": "数据库"
+apiVersion: v1
+appVersion: 5.7.31
+description: Fast, reliable, scalable, and easy to use open-source relational database
+  system.
+engine: gotpl
+home: https://www.mysql.com/
+icon: https://www.mysql.com/common/logos/powered-by-mysql-167x86.png
 keywords:
-  - database
-  - sql
-  - mysql
-  - relational database
-  - persistent storage
-  - db
+- mysql
+- database
+- sql
+maintainers:
+- email: o.with@sportradar.com
+  name: olemarkus
+- email: viglesias@google.com
+  name: viglesiasce
+name: mysql
+sources:
+- https://github.com/kubernetes/charts
+- https://github.com/docker-library/mysql
+version: 1.6.8
+annotations:
+  "app.kubesphere.io/category": "Database & Cache"
