@@ -10,14 +10,13 @@ keywords:
 - database
 - sql
 maintainers:
-- email: o.with@sportradar.com
-  name: olemarkus
-- email: viglesias@google.com
-  name: viglesiasce
+- email: sekey@yunna.net
+  name: sekey
 name: mysql
 sources:
 - https://github.com/kubernetes/charts
 - https://github.com/docker-library/mysql
 version: 1.6.8
 annotations:
-  "app.kubesphere.io/category": "Database & Cache"
+  "yunna.net/category": "Database"
+  "yunna.net/category-zh": "数据库"
