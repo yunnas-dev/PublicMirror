@@ -36,3 +36,7 @@ service:
 ssl:
   enabled: false
   secret: mysql-ssl-certs
+
+## 测试框架配置（默认禁用）
+testFramework:
+  enabled: false
