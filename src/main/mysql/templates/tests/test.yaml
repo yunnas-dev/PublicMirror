@@ -1,4 +1,4 @@
-{{- if .Values.testFramework.enabled  }}
+{{- if and .Values.testFramework .Values.testFramework.enabled }}
 apiVersion: v1
 kind: Pod
 metadata:

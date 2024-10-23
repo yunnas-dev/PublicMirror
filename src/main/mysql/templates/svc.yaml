@@ -12,7 +12,7 @@ metadata:
 {{- if .Values.service.annotations }}
 {{ toYaml .Values.service.annotations | indent 4 }}
 {{- end }}
-{{- if and (.Values.metrics) (.Values.metrics.enabled) (.Values.metrics.annotations) }}
+{{- if and .Values.metrics (and .Values.metrics.enabled .Values.metrics.annotations) }}
 {{ toYaml .Values.metrics.annotations | indent 4 }}
 {{- end }}
 spec:
@@ -27,7 +27,7 @@ spec:
     {{- if .Values.service.nodePort }}
     nodePort: {{ .Values.service.nodePort }}
     {{- end }}
-  {{- if and (.Values.metrics) (.Values.metrics.enabled) }}
+  {{- if and .Values.metrics .Values.metrics.enabled }}
   - name: metrics
     port: 9104
     targetPort: metrics
