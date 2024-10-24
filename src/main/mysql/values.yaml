@@ -12,3 +12,4 @@ persistence:
   enabled: true
   size: 8Gi
   storageClass: "local"
+  pvcName: ""  # 留空时动态生成 PVC 名称

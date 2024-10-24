@@ -3,9 +3,9 @@ kind: Service
 metadata:
   name: mysql
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.service.type }}  # 从 values.yaml 中读取服务类型
   ports:
-    - port: {{ .Values.service.port }}
+    - port: {{ .Values.service.port }}  # 从 values.yaml 中读取服务端口
       targetPort: 3306
   selector:
     app: mysql

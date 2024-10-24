@@ -2,23 +2,24 @@
   "$schema": "https://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
-    "replicaCount": {
-      "type": "integer",
-      "title": "Replicas Count",
-      "form": true,
-      "minimum": 1
-    },
-    "ingress": {
+    "image": {
       "type": "object",
-      "title": "Ingress",
-      "form": true,
       "properties": {
-        "enabled": {
-          "type": "boolean",
-          "title": "Enabled",
-          "form": true
+        "tag": {
+          "type": "string",
+          "title": "镜像标签",
+          "description": "指定 MySQL 镜像的标签。",
+          "default": "8.0"
         }
-      }
+      },
+      "required": ["tag"]
+    },
+    "mysqlRootPassword": {
+      "type": "string",
+      "title": "MySQL 根密码",
+      "minLength": 1,
+      "description": "用于设置 MySQL 根用户的密码。"
     }
-  }
+  },
+  "required": ["mysqlRootPassword"]
 }

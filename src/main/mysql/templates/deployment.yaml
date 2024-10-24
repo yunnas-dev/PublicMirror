@@ -26,4 +26,4 @@ spec:
       volumes:
         - name: mysql-persistent-storage
           persistentVolumeClaim:
-            claimName: mysql-pvc
+            claimName: {{ .Values.persistence.pvcName | default (include "mysql.fullname" .) }}  # 动态生成 PVC 名称
