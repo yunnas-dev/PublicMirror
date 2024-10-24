@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: mysql
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"  # 将 imageRegistry 和 repository 组合起来
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: {{ .Values.mysqlRootPassword | quote }}
@@ -26,4 +26,4 @@ spec:
       volumes:
         - name: mysql-persistent-storage
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.pvcName | default (include "mysql.fullname" .) }}  # 动态生成 PVC 名称
+            claimName: {{ .Values.persistence.pvcName | default (include "mysql.fullname" .) }}
