@@ -1,0 +1,42 @@
+replicaCount: 1
+
+image:
+  imageRegistry: "registry-2.yunna.net"  # 添加镜像仓库地址
+  repository: discourse/discourse
+  tag: "2.8.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1024Mi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+persistence:
+  discourse:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    storageClass: ""
+  postgresql:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: ""
+
+postgresql:
+  image:
+    repository: postgres
+    tag: "13"
+  service:
+    port: 5432
+  env:
+    POSTGRES_USER: discourse
+    POSTGRES_PASSWORD: discourse_password
+    POSTGRES_DB: discourse

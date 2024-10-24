@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-discourse-pvc
+  labels:
+    app: {{ .Release.Name }}-discourse
+spec:
+  accessModes:
+    - {{ .Values.persistence.discourse.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.discourse.size }}
+  storageClassName: {{ .Values.persistence.discourse.storageClass }}

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-discourse
+  labels:
+    app: {{ .Release.Name }}-discourse
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-discourse
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-discourse
+    spec:
+      containers:
+        - name: discourse
+          image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DISCOURSE_HOSTNAME
+              value: {{ .Values.env.DISCOURSE_HOSTNAME }}
+            - name: DISCOURSE_DEVELOPER_EMAILS
+              value: {{ .Values.env.DISCOURSE_DEVELOPER_EMAILS }}
+            - name: DISCOURSE_SMTP_ADDRESS
+              value: {{ .Values.env.DISCOURSE_SMTP_ADDRESS }}
+            - name: DISCOURSE_SMTP_PORT
+              value: {{ .Values.env.DISCOURSE_SMTP_PORT }}
+            - name: DISCOURSE_SMTP_USER_NAME
+              value: {{ .Values.env.DISCOURSE_SMTP_USER_NAME }}
+            - name: DISCOURSE_SMTP_PASSWORD
+              value: {{ .Values.env.DISCOURSE_SMTP_PASSWORD }}
+            - name: DISCOURSE_DB_HOST
+              value: {{ .Release.Name }}-postgresql
+            - name: DISCOURSE_DB_PORT
+              value: "{{ .Values.postgresql.service.port }}"
+            - name: DISCOURSE_DB_USERNAME
+              value: {{ .Values.postgresql.env.POSTGRES_USER }}
+            - name: DISCOURSE_DB_PASSWORD
+              value: {{ .Values.postgresql.env.POSTGRES_PASSWORD }}
+            - name: DISCOURSE_DB_NAME
+              value: {{ .Values.postgresql.env.POSTGRES_DB }}
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: discourse-data
+              mountPath: /shared
+      volumes:
+        - name: discourse-data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-discourse-pvc

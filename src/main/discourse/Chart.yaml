@@ -1,0 +1,5 @@
+apiVersion: v2
+name: discourse
+description: A Helm chart for Discourse with PostgreSQL included
+version: 0.2.0
+appVersion: "2.8.0" # Discourse 版本
