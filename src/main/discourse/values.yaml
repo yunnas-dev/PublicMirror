@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  imageRegistry: "registry-2.yunna.net"  # 添加镜像仓库地址
+  imageRegistry: "registry-2.yunna.net"
   repository: discourse/discourse
   tag: "2.8.0"
   pullPolicy: IfNotPresent
@@ -40,3 +40,11 @@ postgresql:
     POSTGRES_USER: discourse
     POSTGRES_PASSWORD: discourse_password
     POSTGRES_DB: discourse
+
+env:
+  DISCOURSE_HOSTNAME: "your-discourse-hostname"  # 必须定义这个字段
+  DISCOURSE_DEVELOPER_EMAILS: "admin@example.com"
+  DISCOURSE_SMTP_ADDRESS: "smtp.example.com"
+  DISCOURSE_SMTP_PORT: 587
+  DISCOURSE_SMTP_USER_NAME: "smtp_user"
+  DISCOURSE_SMTP_PASSWORD: "smtp_password"

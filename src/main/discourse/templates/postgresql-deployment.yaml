@@ -1,29 +1,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-postgresql
+  name: {{ include "discourse.fullname" . }}-postgresql
   labels:
-    app: {{ .Release.Name }}-postgresql
+    {{ include "discourse.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-postgresql
+      app: {{ include "discourse.fullname" . }}-postgresql
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-postgresql
+        app: {{ include "discourse.fullname" . }}-postgresql
     spec:
       containers:
         - name: postgresql
           image: "{{ .Values.postgresql.image.repository }}:{{ .Values.postgresql.image.tag }}"
           env:
             - name: POSTGRES_USER
-              value: {{ .Values.postgresql.env.POSTGRES_USER }}
+              value: {{ .Values.postgresql.env.POSTGRES_USER | quote }}
             - name: POSTGRES_PASSWORD
-              value: {{ .Values.postgresql.env.POSTGRES_PASSWORD }}
+              value: {{ .Values.postgresql.env.POSTGRES_PASSWORD | quote }}
             - name: POSTGRES_DB
-              value: {{ .Values.postgresql.env.POSTGRES_DB }}
+              value: {{ .Values.postgresql.env.POSTGRES_DB | quote }}
           ports:
             - containerPort: {{ .Values.postgresql.service.port }}
           volumeMounts:

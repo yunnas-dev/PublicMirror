@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Release.Name }}-discourse-pvc
+  name: {{ include "discourse.fullname" . }}-discourse-pvc
   labels:
-    app: {{ .Release.Name }}-discourse
+    {{ include "discourse.labels" . | nindent 4 }}
 spec:
   accessModes:
     - {{ .Values.persistence.discourse.accessMode }}

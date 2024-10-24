@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-discourse
+  name: {{ include "discourse.fullname" . }}
   labels:
-    app: {{ .Release.Name }}-discourse
+    {{ include "discourse.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
       targetPort: 80
   selector:
-    app: {{ .Release.Name }}-discourse
+    app: {{ include "discourse.fullname" . }}

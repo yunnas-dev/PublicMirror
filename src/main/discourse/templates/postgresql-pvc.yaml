@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Release.Name }}-postgresql-pvc
+  name: {{ include "discourse.fullname" . }}-postgresql-pvc
   labels:
-    app: {{ .Release.Name }}-postgresql
+    {{ include "discourse.labels" . | nindent 4 }}
 spec:
   accessModes:
     - {{ .Values.persistence.postgresql.accessMode }}
