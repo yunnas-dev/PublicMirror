@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   imageRegistry: "registry-2.yunna.net"
-  repository: taskbjorn/hexo
+  repository: davycloud/docker-hexo
   tag: "latest"
   pullPolicy: IfNotPresent
 
