@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   imageRegistry: "registry-2.yunna.net"
-  repository: spurin/hexo
+  repository: taskbjorn/hexo
   tag: "latest"
   pullPolicy: IfNotPresent
 
