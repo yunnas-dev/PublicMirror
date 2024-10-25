@@ -1,10 +1,13 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: hexo-data-pvc
+  name: {{ include "hexo.fullname" . }}-pvc  # 使用模板函数生成名称
+  labels:
+    {{ include "hexo.labels" . | nindent 4 }}
 spec:
   accessModes:
-    - ReadWriteOnce
+    - {{ .Values.persistence.hexo.accessMode }}
   resources:
     requests:
-      storage: 10Gi
+      storage: {{ .Values.persistence.hexo.size }}
+  storageClassName: {{ .Values.persistence.hexo.storageClass | quote }}

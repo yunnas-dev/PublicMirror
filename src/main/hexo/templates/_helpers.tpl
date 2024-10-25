@@ -1,13 +1,26 @@
-{{/*
-Generate the full name of the chart
+{{/* 
+Generate the fullname of the release
+Usage: {{ include "hexo.fullname" . }}
 */}}
 {{- define "hexo.fullname" -}}
-{{- .Release.Name }}-hexo
-{{- end -}}
+{{- printf "%s-%s" .Release.Name "hexo" | trunc 63 | trimSuffix "-" -}}
+{{- end }}
 
-{{/*
-Get the chart name
+{{/* 
+Generate the name of the chart
+Usage: {{ include "hexo.name" . }}
 */}}
 {{- define "hexo.name" -}}
-{{- .Chart.Name }}
-{{- end -}}
+hexo
+{{- end }}
+
+{{/* 
+Generate common labels
+Usage: {{ include "hexo.labels" . }}
+*/}}
+{{- define "hexo.labels" -}}
+app.kubernetes.io/name: {{ include "hexo.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/version: {{ .Chart.AppVersion }}
+helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+{{- end }}

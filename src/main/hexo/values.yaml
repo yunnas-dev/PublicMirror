@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   imageRegistry: "registry-2.yunna.net"
-  repository: davycloud/docker-hexo
+  repository: appotry/docker-hexo
   tag: "latest"
   pullPolicy: IfNotPresent
 
@@ -22,10 +22,16 @@ persistence:
   hexo:
     enabled: true
     accessMode: ReadWriteOnce
-    size: 10Gi
-    storageClass: "local"
+    size: 10Gi  # Persistent volume size
+    storageClass: "local"  # 动态存储类
 
 env:
-  HEXO_SERVER_PORT: "4000"
-  HEXO_GIT_USER: "Your Name"
-  HEXO_GIT_EMAIL: "your.email@example.com"
+  - name: NODE_ENV
+    value: production
+  - name: HEXO_DEBUG
+    value: "false"
+  - name: CUSTOM_VAR
+    valueFrom:
+      secretKeyRef:
+        name: my-secret
+        key: customKey
