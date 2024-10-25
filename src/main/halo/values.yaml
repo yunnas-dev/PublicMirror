@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  imageRegistry: ""
+  imageRegistry: "registry-2.yunna.net"
   repository: halohub/halo
   tag: "2.20"
   pullPolicy: IfNotPresent
