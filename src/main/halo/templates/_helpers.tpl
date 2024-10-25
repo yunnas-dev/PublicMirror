@@ -1,5 +1,5 @@
 {{/*
-Generate the full name of the release, limiting to 63 characters
+Generate the fullname of the release, limiting to 63 characters
 */}}
 {{- define "halo.fullname" -}}
 {{- printf "%s-%s" .Release.Name "halo" | trunc 63 | trimSuffix "-" -}}
@@ -17,7 +17,7 @@ Generate common labels for the chart
 */}}
 {{- define "halo.labels" -}}
 app.kubernetes.io/name: {{ include "halo.name" . }}
-app.kubernetes.io/instance: {{ printf "%s" .Release.Name }}
-app.kubernetes.io/version: {{ printf "%s" .Chart.AppVersion }}
-helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version }}
+app.kubernetes.io/instance: {{ .Release.Name | quote }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | quote }}
 {{- end -}}
