@@ -3,7 +3,7 @@ name: uptime-kuma
 description: |
   Uptime Kuma 是一个自托管的监控工具，可帮助用户监控网站和服务的正常运行时间。
   该 Chart 用于部署 Uptime Kuma，并支持持久化存储配置和服务端口自定义。
-version: "0.1.1"
+version: 0.1.1
 appVersion: "latest"
 home: https://github.com/louislam/uptime-kuma
 sources:
