@@ -3,8 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "awvs.fullname" . }}
   labels:
-    app.kubernetes.io/name: {{ include "awvs.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{ include "awvs.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -14,8 +13,7 @@ spec:
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "awvs.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        {{ include "awvs.labels" . | nindent 8 }}
     spec:
       containers:
         - name: awvs
@@ -37,11 +35,11 @@ spec:
               cpu: "{{ .Values.resources.requests.cpu }}"
           volumeMounts:
             - name: awvs-data
-              mountPath: /data # 持久化数据的挂载路径
-      securityContext:
-        capabilities:
-          add: 
-            - "{{ .Values.securityContext.capabilities.add | join "," }}"
+              mountPath: /data
+          securityContext:  # 将 capabilities 配置到容器级别的 securityContext
+            capabilities:
+              add:
+                - "{{ .Values.securityContext.capabilities.add | join "," }}"
       volumes:
         - name: awvs-data
           persistentVolumeClaim:
