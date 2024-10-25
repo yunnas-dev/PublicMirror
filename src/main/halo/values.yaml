@@ -22,6 +22,6 @@ persistence:
   enabled: true
   accessMode: ReadWriteOnce
   size: 5Gi
-  storageClass: ""
+  storageClass: "local"
 
 env: []
