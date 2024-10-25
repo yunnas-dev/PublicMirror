@@ -1,25 +1,41 @@
-containers:
-  - name: uptime-kuma
-    image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-    imagePullPolicy: "{{ .Values.image.pullPolicy }}"
-    ports:
-      - containerPort: 3001
-    env:
-      {{- range .Values.env }}
-      - name: "{{ .name }}"
-        value: "{{ .value }}"
-      {{- end }}
-    resources:
-      requests:
-        memory: "{{ .Values.resources.requests.memory }}"
-        cpu: "{{ .Values.resources.requests.cpu }}"
-      limits:
-        memory: "{{ .Values.resources.limits.memory }}"
-        cpu: "{{ .Values.resources.limits.cpu }}"
-    volumeMounts:
-      - name: uptime-kuma-data
-        mountPath: /app/data
-volumes:
-  - name: uptime-kuma-data
-    persistentVolumeClaim:
-      claimName: {{ include "uptime-kuma.fullname" . }}-pvc
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "uptime-kuma.fullname" . }}
+  labels:
+    {{ include "uptime-kuma.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "uptime-kuma.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "uptime-kuma.name" . }}
+    spec:
+      containers:
+        - name: uptime-kuma
+          image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+          ports:
+            - containerPort: 3001
+          env:
+            {{- range .Values.env }}
+            - name: "{{ .name }}"
+              value: "{{ .value }}"
+            {{- end }}
+          resources:
+            requests:
+              memory: "{{ .Values.resources.requests.memory }}"
+              cpu: "{{ .Values.resources.requests.cpu }}"
+            limits:
+              memory: "{{ .Values.resources.limits.memory }}"
+              cpu: "{{ .Values.resources.limits.cpu }}"
+          volumeMounts:
+            - name: uptime-kuma-data
+              mountPath: /app/data
+      volumes:
+        - name: uptime-kuma-data
+          persistentVolumeClaim:
+            claimName: {{ include "uptime-kuma.fullname" . }}-pvc
