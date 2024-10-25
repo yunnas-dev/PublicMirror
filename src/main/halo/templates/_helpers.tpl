@@ -17,7 +17,7 @@ Generate common labels for the chart
 */}}
 {{- define "halo.labels" -}}
 app.kubernetes.io/name: {{ include "halo.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/version: {{ .Chart.AppVersion }}
-helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+app.kubernetes.io/instance: {{ toString .Release.Name }}
+app.kubernetes.io/version: {{ toString .Chart.AppVersion }}
+helm.sh/chart: {{ printf "%s-%s" (toString .Chart.Name) (toString .Chart.Version) }}
 {{- end -}}
