@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   imageRegistry: "registry-2.yunna.net"
-  repository: appotry/docker-hexo
+  repository: bloodstar/hexo
   tag: "latest"
   pullPolicy: IfNotPresent
 
