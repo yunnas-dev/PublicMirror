@@ -1,0 +1,32 @@
+replicaCount: 1
+
+image:
+  imageRegistry: "registry-2.yunna.net"
+  repository: louislam/uptime-kuma
+  tag: "1"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3001
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1024Mi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+persistence:
+  uptimeKuma:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: "local"
+
+env:
+  - name: NODE_ENV
+    value: production
+  - name: KUMA_DEBUG
+    value: "false"
