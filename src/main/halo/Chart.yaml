@@ -1,0 +1,21 @@
+apiVersion: v2
+name: halo
+description: |
+  Halo 是一个强大的开源博客系统，支持高度自定义的主题和插件管理。
+  该 Chart 用于部署 Halo，并支持持久化存储配置和服务端口自定义。
+version: 0.1.1
+appVersion: "2.20"
+home: https://hub.docker.com/r/halohub/halo
+sources:
+  - https://github.com/halo-dev/halo
+maintainers:
+  - name: "halohub"
+    email: "support@halo.com"
+annotations:
+  "yunna.net/category": "Blog System"
+  "yunna.net/category-zh": "博客系统"
+keywords:
+  - "Blog"
+  - "Open Source"
+  - "Halo"
+icon: "https://www.halo.run/upload/2021/03/Adaptive256-463ca9b92e2d40268431018c07735842.png"
