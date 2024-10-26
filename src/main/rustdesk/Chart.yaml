@@ -1,0 +1,20 @@
+apiVersion: v2
+name: rustdesk-server
+description: |
+  RustDesk Server 是一个开源的远程桌面解决方案的服务器端组件。
+  此 Chart 用于在 Kubernetes 集群上部署 RustDesk 服务器。
+version: 0.1.0
+appVersion: "latest"
+home: https://hub.docker.com/r/rustdesk/rustdesk-server-s6
+sources:
+  - https://github.com/rustdesk/rustdesk-server
+maintainers:
+  - name: "RustDesk Maintainer"
+    email: "support@rustdesk.com"
+annotations:
+  "yunna.net/category": "Remote Desktop"
+  "yunna.net/category-zh": "远程桌面"
+keywords:
+  - "RustDesk"
+  - "Remote Desktop"
+icon: "https://rustdesk.com/favicon.ico"
