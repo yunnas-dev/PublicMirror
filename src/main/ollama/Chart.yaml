@@ -1,0 +1,21 @@
+apiVersion: v2
+name: ollama
+description: |
+  Ollama 是一个运行在 Docker 中的服务。
+  此 Chart 用于在 Kubernetes 集群上部署 Ollama。
+version: 0.1.0
+appVersion: "0.3.14"
+home: https://hub.docker.com/r/ollama/ollama
+sources:
+  - https://github.com/ollama/ollama
+maintainers:
+  - name: "Ollama Maintainer"
+    email: "support@ollama.com"
+annotations:
+  "yunna.net/category": "Service"
+  "yunna.net/category-zh": "服务"
+keywords:
+  - "Ollama"
+  - "Service"
+  - "Container"
+icon: "https://ollama.com/favicon.ico"
