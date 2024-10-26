@@ -1,7 +1,7 @@
 apiVersion: v2
 appVersion: 8.0
 description: MySQL 是一个开源的关系型数据库管理系统（RDBMS），以稳定性和性能著称。
-icon: https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/MySQL.svg/500px-MySQL.svg.png
+icon: https://www.mysql.com/common/logos/powered-by-mysql-167x86.png
 maintainers:
   - name: 云纳科技
     email: email@yunna.net
