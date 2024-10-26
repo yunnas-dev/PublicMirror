@@ -12,8 +12,8 @@ maintainers:
   - name: "yidadaa"
     email: "support@chatgpt.com"
 annotations:
-  "example.com/category": "AI"
-  "example.com/category-zh": "人工智能"
+  "yunna.net/category": "AI"
+  "yunna.net/category-zh": "人工智能"
 keywords:
   - "ChatGPT"
   - "AI"

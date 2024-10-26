@@ -12,8 +12,8 @@ maintainers:
   - name: "pgadmin"
     email: "support@pgadmin.com"
 annotations:
-  "example.com/category": "Database Management"
-  "example.com/category-zh": "数据库管理"
+  "yunna.net/category": "Database Management"
+  "yunna.net/category-zh": "数据库管理"
 keywords:
   - "Database"
   - "PostgreSQL"
