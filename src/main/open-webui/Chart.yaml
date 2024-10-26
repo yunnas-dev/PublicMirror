@@ -1,0 +1,20 @@
+apiVersion: v2
+name: open-webui
+description: |
+  Open WebUI 是一个 Helm Chart 模板，用于部署 WebUI 应用。
+version: 0.1.0
+appVersion: "1.0.0" # 应用的版本
+home: https://example.com
+sources:
+  - https://github.com/open-webui/open-webui
+maintainers:
+  - name: "Open WebUI Maintainer"
+    email: "support@example.com"
+annotations:
+  "yunna.net/category": "Application"
+  "yunna.net/category-zh": "应用程序"
+keywords:
+  - "WebUI"
+  - "Helm"
+  - "Template"
+icon: "https://example.com/favicon.ico"
