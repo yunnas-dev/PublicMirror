@@ -1,0 +1,21 @@
+apiVersion: v2
+name: cloudbeaver
+description: |
+  CloudBeaver 是一个基于 Web 的数据库管理工具。
+  此 Chart 用于在 Kubernetes 集群上部署 CloudBeaver。
+version: 0.1.0
+appVersion: "24.2.3"
+home: https://hub.docker.com/r/dbeaver/cloudbeaver
+sources:
+  - https://github.com/dbeaver/cloudbeaver
+maintainers:
+  - name: "CloudBeaver Maintainer"
+    email: "support@cloudbeaver.com"
+annotations:
+  "yunna.net/category": "Database Management"
+  "yunna.net/category-zh": "数据库管理"
+keywords:
+  - "CloudBeaver"
+  - "Database Management"
+  - "Web Database Tool"
+icon: "https://cloudbeaver.io/favicon.ico"
