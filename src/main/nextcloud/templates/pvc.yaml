@@ -1,4 +1,5 @@
 {{- if .Values.persistence.config.enabled }}
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -14,6 +15,7 @@ spec:
 {{- end }}
 
 {{- if .Values.persistence.data.enabled }}
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
