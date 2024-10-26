@@ -1,0 +1,21 @@
+apiVersion: v2
+name: code-server
+description: |
+  Code-Server 是一个在浏览器中运行的 Visual Studio Code 版本。
+  此 Chart 用于在 Kubernetes 集群上部署 Code-Server。
+version: 0.1.0
+appVersion: "4.93.1"
+home: https://hub.docker.com/r/linuxserver/code-server
+sources:
+  - https://github.com/linuxserver/docker-code-server
+maintainers:
+  - name: "Code Server Maintainer"
+    email: "support@codeserver.com"
+annotations:
+  "yunna.net/category": "IDE"
+  "yunna.net/category-zh": "集成开发环境"
+keywords:
+  - "Code-Server"
+  - "IDE"
+  - "Development"
+icon: "https://avatars.githubusercontent.com/u/95932066?s=200&v=4"
