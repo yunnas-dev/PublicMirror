@@ -1,0 +1,27 @@
+replicaCount: 1
+
+image:
+  imageRegistry: "registry-2.yunna.net"
+  repository: whyour/qinglong
+  tag: "2.17.11"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 5700
+  externalPort: 80
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+persistence:
+  enabled: true
+  path: /ql/data
+  size: 5Gi
+
+env: {}

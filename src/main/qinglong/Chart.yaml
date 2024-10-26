@@ -1,0 +1,21 @@
+apiVersion: v2
+name: qinglong
+description: |
+  Qinglong 是一个面向自动化任务管理的工具。
+  此 Chart 用于在 Kubernetes 集群上部署 Qinglong。
+version: 0.1.0
+appVersion: "2.17.11"
+home: https://hub.docker.com/r/whyour/qinglong
+sources:
+  - https://github.com/whyour/qinglong
+maintainers:
+  - name: "Qinglong Maintainer"
+    email: "support@qinglong.com"
+annotations:
+  "yunna.net/category": "Automation"
+  "yunna.net/category-zh": "自动化"
+keywords:
+  - "Qinglong"
+  - "Automation"
+  - "Task Management"
+icon: "https://qinglong.com/favicon.ico"
