@@ -1,0 +1,21 @@
+apiVersion: v2
+name: filecodebox
+description: |
+  Filecodebox 是一个文件和代码管理工具。
+  此 Chart 用于在 Kubernetes 集群上部署 Filecodebox。
+version: 0.1.0
+appVersion: "beta"
+home: https://hub.docker.com/r/lanol/filecodebox
+sources:
+  - https://github.com/lanol/filecodebox
+maintainers:
+  - name: "Filecodebox Maintainer"
+    email: "support@filecodebox.com"
+annotations:
+  "yunna.net/category": "File Management"
+  "yunna.net/category-zh": "文件管理"
+keywords:
+  - "Filecodebox"
+  - "File Management"
+  - "Code Management"
+icon: "https://filecodebox.com/favicon.ico"
