@@ -1,8 +1,8 @@
 replicaCount: 1
 
 image:
-  imageRegistry: ghcr.io
-  repository: open-webui/open-webui
+  imageRegistry: registry-2.yunna.net
+  repository: dyrnq/open-webui
   tag: "main"
   pullPolicy: IfNotPresent
 
