@@ -1,0 +1,21 @@
+apiVersion: v2
+name: teamspeak
+description: |
+  TeamSpeak 是一个高质量的语音聊天应用。
+  此 Chart 用于在 Kubernetes 集群上部署 TeamSpeak 服务器。
+version: 0.1.0
+appVersion: "3.13.7"
+home: https://hub.docker.com/r/teamspeak/teamspeak
+sources:
+  - https://github.com/TeamSpeak-Systems/teamspeak
+maintainers:
+  - name: "TeamSpeak Maintainer"
+    email: "support@teamspeak.com"
+annotations:
+  "yunna.net/category": "Voice Communication"
+  "yunna.net/category-zh": "语音通信"
+keywords:
+  - "TeamSpeak"
+  - "Voice Chat"
+  - "Communication"
+icon: "https://teamspeak.com/favicon.ico"
