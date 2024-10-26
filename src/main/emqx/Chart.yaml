@@ -1,0 +1,21 @@
+apiVersion: v2
+name: emqx
+description: |
+  EMQX 是一个开源的分布式 MQTT 消息代理。
+  此 Chart 用于在 Kubernetes 集群上部署 EMQX。
+version: 0.1.0
+appVersion: "5.8.1"
+home: https://hub.docker.com/r/emqx/emqx
+sources:
+  - https://github.com/emqx/emqx
+maintainers:
+  - name: "EMQX Maintainer"
+    email: "support@emqx.io"
+annotations:
+  "yunna.net/category": "MQTT Broker"
+  "yunna.net/category-zh": "MQTT 代理"
+keywords:
+  - "EMQX"
+  - "MQTT"
+  - "Message Broker"
+icon: "https://www.emqx.io/favicon.ico"
