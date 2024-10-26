@@ -1,0 +1,20 @@
+replicaCount: 1
+
+image:
+  imageRegistry: "docker.io"
+  repository: adminer
+  tag: "4.8.1-standalone"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+  externalPort: 80
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
