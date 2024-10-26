@@ -22,7 +22,7 @@ persistence:
   enabled: true
   accessMode: ReadWriteOnce
   size: 1Gi
-  storageClass: "standard"
+  storageClass: "local"
 
 pgAdmin:
   email: "xxxrubiks@gmail.com"
