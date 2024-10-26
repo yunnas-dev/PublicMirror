@@ -1,0 +1,21 @@
+apiVersion: v2
+name: chatgpt-next-web
+description: |
+  ChatGPT Next Web 是一个基于 OpenAI API 的强大对话界面。
+  此 Chart 用于部署 ChatGPT Next Web，支持自定义环境变量和服务端口配置。
+version: 0.1.0
+appVersion: "v2.15.6"
+home: https://hub.docker.com/r/yidadaa/chatgpt-next-web
+sources:
+  - https://github.com/yidadaa/chatgpt-next-web
+maintainers:
+  - name: "yidadaa"
+    email: "support@chatgpt.com"
+annotations:
+  "example.com/category": "AI"
+  "example.com/category-zh": "人工智能"
+keywords:
+  - "ChatGPT"
+  - "AI"
+  - "OpenAI"
+icon: "https://pbs.twimg.com/profile_images/1741444768553631744/s7PRthX__bigger.jpg"

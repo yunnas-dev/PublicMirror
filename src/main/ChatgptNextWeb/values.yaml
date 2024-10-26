@@ -1,0 +1,27 @@
+replicaCount: 1
+
+image:
+  imageRegistry: "registry-2.yunna.net"
+  repository: yidadaa/chatgpt-next-web
+  tag: "v2.15.6"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3000
+  externalPort: 80
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+env:
+  API_KEY: ""
+  SECRET_KEY: ""
+  PROXY: ""
+  API_BASE_URL: ""
+  WHITE_WEBDAV_ENDPOINTS: ""
