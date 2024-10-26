@@ -1,15 +1,17 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "template.fullname" . }}
+  name: {{ include "my-app.fullname" . }}
   labels:
-    {{- include "template.labels" . | nindent 4 }}
+    {{ include "my-app.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
+    {{- range .Values.service.ports }}
+    - name: {{ .name }}
+      port: {{ .externalPort }}
+      targetPort: {{ .port }}
+      protocol: {{ .protocol }}
+    {{- end }}
   selector:
-    {{- include "template.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "my-app.name" . }}
