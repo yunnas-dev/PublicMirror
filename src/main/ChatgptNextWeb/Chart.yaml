@@ -1,5 +1,5 @@
 apiVersion: v2
-name: chatgpt-next-web
+name: chatgptnextweb
 description: |
   ChatGPT Next Web 是一个基于 OpenAI API 的强大对话界面。
   此 Chart 用于部署 ChatGPT Next Web，支持自定义环境变量和服务端口配置。
