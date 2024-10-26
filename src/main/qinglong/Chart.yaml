@@ -1,8 +1,7 @@
 apiVersion: v2
 name: qinglong
 description: |
-  Qinglong 是一个面向自动化任务管理的工具。
-  此 Chart 用于在 Kubernetes 集群上部署 Qinglong。
+  Qinglong 是一个用于自动化任务管理的开源工具，支持调度、脚本执行和任务监控。它可广泛应用于自动化工作流、脚本运行以及定时任务管理，为用户提供灵活的任务配置和实时监控功能，适合需要高效管理任务和脚本的用户。
 version: 0.1.0
 appVersion: "2.17.11"
 home: https://hub.docker.com/r/whyour/qinglong

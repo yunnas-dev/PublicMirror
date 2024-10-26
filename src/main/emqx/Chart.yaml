@@ -1,8 +1,7 @@
 apiVersion: v2
 name: emqx
 description: |
-  EMQX 是一个开源的分布式 MQTT 消息代理。
-  此 Chart 用于在 Kubernetes 集群上部署 EMQX。
+  EMQX 是一款高性能、开源的分布式 MQTT 消息代理，专为物联网（IoT）场景设计，能够支持高达亿级设备连接。其特性包括全面的 MQTT 协议支持、低延迟消息传递、强大的规则引擎、与多种云和数据平台的集成，适用于智慧城市、工业物联网等领域中的实时数据连接与管理。
 version: 0.1.0
 appVersion: "5.8.1"
 home: https://hub.docker.com/r/emqx/emqx

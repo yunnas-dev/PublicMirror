@@ -1,8 +1,7 @@
 apiVersion: v2
 name: filecodebox
 description: |
-  Filecodebox 是一个文件和代码管理工具。
-  此 Chart 用于在 Kubernetes 集群上部署 Filecodebox。
+  Filecodebox 是一个基于 Web 的文件和代码共享管理工具，提供匿名口令访问和一次性文件分享。支持多种文件格式的传输，包括文本、图片、视频等，用户可设定访问次数与时间限制，便于跨设备共享。Filecodebox 提供简洁的界面和 Docker 部署，适用于快速文件共享和代码协作需求。
 version: 0.1.0
 appVersion: "beta"
 home: https://hub.docker.com/r/lanol/filecodebox
