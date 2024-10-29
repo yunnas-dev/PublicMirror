@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "hexo.fullname" . }}
+  labels:
+    {{ include "hexo.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "hexo.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "hexo.name" . }}
+    spec:
+      containers:
+        - name: hexo
+          image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+          ports:
+            - containerPort: 4000
+          volumeMounts:
+            - name: hexo-content
+              mountPath: /hexo
+      volumes:
+        - name: hexo-content
+          persistentVolumeClaim:
+            claimName: {{ include "hexo.fullname" . }}-pvc

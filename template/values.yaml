@@ -1,0 +1,32 @@
+replicaCount: 1
+
+image:
+  imageRegistry: "registry-2.yunna.net"
+  repository: my-app
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      externalPort: 80
+      protocol: TCP
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+persistence:
+  enabled: true
+  path: /data
+  size: 5Gi
+
+env:
+  MY_APP_SETTING_1: "value1"
+  MY_APP_SETTING_2: "value2"

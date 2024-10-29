@@ -1,29 +1,11 @@
-{{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim) }}
-kind: PersistentVolumeClaim
 apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
-  name: {{ template "mysql.fullname" . }}
-  namespace: {{ .Release.Namespace }}
-{{- with .Values.persistence.annotations  }}
-  annotations:
-{{ toYaml . | indent 4 }}
-{{- end }}
-  labels:
-    app: {{ template "mysql.fullname" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
+  name: {{ .Values.persistence.pvcName | default (include "mysql.fullname" .) }}  # 动态生成 PVC 名称
 spec:
   accessModes:
-    - {{ .Values.persistence.accessMode | quote }}
+    - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.persistence.size | quote }}
-{{- if .Values.persistence.storageClass }}
-{{- if (eq "-" .Values.persistence.storageClass) }}
-  storageClassName: ""
-{{- else }}
-  storageClassName: "{{ .Values.persistence.storageClass }}"
-{{- end }}
-{{- end }}
-{{- end }}
+      storage: {{ .Values.persistence.size }}  # 从 values.yaml 中读取存储大小
+  storageClassName: {{ .Values.persistence.storageClass | quote }}  # 从 values.yaml 中读取存储类

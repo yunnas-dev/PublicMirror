@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "discourse.fullname" . }}
+  labels:
+    {{ include "discourse.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "discourse.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "discourse.fullname" . }}
+    spec:
+      containers:
+        - name: discourse
+          image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DISCOURSE_HOSTNAME
+              value: {{ .Values.env.DISCOURSE_HOSTNAME | quote }}
+            - name: DISCOURSE_DEVELOPER_EMAILS
+              value: {{ .Values.env.DISCOURSE_DEVELOPER_EMAILS | quote }}
+            - name: DISCOURSE_SMTP_ADDRESS
+              value: {{ .Values.env.DISCOURSE_SMTP_ADDRESS | quote }}
+            - name: DISCOURSE_SMTP_PORT
+              value: {{ .Values.env.DISCOURSE_SMTP_PORT | quote }}
+            - name: DISCOURSE_SMTP_USER_NAME
+              value: {{ .Values.env.DISCOURSE_SMTP_USER_NAME | quote }}
+            - name: DISCOURSE_SMTP_PASSWORD
+              value: {{ .Values.env.DISCOURSE_SMTP_PASSWORD | quote }}
+            - name: DISCOURSE_DB_HOST
+              value: {{ .Release.Name }}-postgresql
+            - name: DISCOURSE_DB_PORT
+              value: "{{ .Values.postgresql.service.port }}"
+            - name: DISCOURSE_DB_USERNAME
+              value: {{ .Values.postgresql.env.POSTGRES_USER | quote }}
+            - name: DISCOURSE_DB_PASSWORD
+              value: {{ .Values.postgresql.env.POSTGRES_PASSWORD | quote }}
+            - name: DISCOURSE_DB_NAME
+              value: {{ .Values.postgresql.env.POSTGRES_DB | quote }}
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: discourse-data
+              mountPath: /shared
+      volumes:
+        - name: discourse-data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-discourse-pvc

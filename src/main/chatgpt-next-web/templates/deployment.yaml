@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "chatgpt-next-web.fullname" . }}
+  labels:
+    {{ include "chatgpt-next-web.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "chatgpt-next-web.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        {{ include "chatgpt-next-web.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: chatgpt-next-web
+          image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: OPENAI_API_KEY
+              value: "{{ .Values.env.API_KEY }}"
+            - name: CODE
+              value: "{{ .Values.env.SECRET_KEY }}"
+            - name: PROXY_URL
+              value: "{{ .Values.env.PROXY }}"
+            - name: BASE_URL
+              value: "{{ .Values.env.API_BASE_URL }}"
+            - name: WHITE_WEBDAV_ENDPOINTS
+              value: "{{ .Values.env.WHITE_WEBDAV_ENDPOINTS }}"
+          resources:
+            limits:
+              memory: "{{ .Values.resources.limits.memory }}"
+              cpu: "{{ .Values.resources.limits.cpu }}"
+            requests:
+              memory: "{{ .Values.resources.requests.memory }}"
+              cpu: "{{ .Values.resources.requests.cpu }}"

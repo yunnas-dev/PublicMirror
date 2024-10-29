@@ -1,0 +1,27 @@
+replicaCount: 1
+
+image:
+  imageRegistry: "registry-2.yunna.net"
+  repository: dbeaver/cloudbeaver
+  tag: "24.2.3"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8978
+  externalPort: 80
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+persistence:
+  enabled: true
+  path: /opt/cloudbeaver/workspace
+  size: 5Gi
+
+env: {}
