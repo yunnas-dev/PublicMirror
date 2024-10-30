@@ -1,51 +1,23 @@
 {{/*
-Expand the name of the chart.
-*/}}
-{{- define "minecraft.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
-{{- end }}
-
-{{/*
-Create a default fully qualified app name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-If release name contains chart name it will be used as a full name.
+Generate the fullname of the release, limiting to 63 characters
 */}}
 {{- define "minecraft.fullname" -}}
-{{- if .Values.fullnameOverride }}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- $name := default .Chart.Name .Values.nameOverride }}
-{{- if contains $name .Release.Name }}
-{{- .Release.Name | trunc 63 | trimSuffix "-" }}
-{{- else }}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
-{{- end }}
-{{- end }}
-{{- end }}
+{{- printf "%s-%s" .Release.Name (include "minecraft.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 
 {{/*
-Create chart name and version as used by the chart label.
+Generate the name of the chart
 */}}
-{{- define "minecraft.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
-{{- end }}
+{{- define "minecraft.name" -}}
+minecraft
+{{- end -}}
 
 {{/*
-Common labels
+Generate common labels for the chart
 */}}
 {{- define "minecraft.labels" -}}
-helm.sh/chart: {{ include "minecraft.chart" . }}
-{{ include "minecraft.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end }}
-
-{{/*
-Selector labels
-*/}}
-{{- define "minecraft.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "minecraft.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
+app.kubernetes.io/instance: {{ .Release.Name | quote }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | quote }}
+{{- end -}}

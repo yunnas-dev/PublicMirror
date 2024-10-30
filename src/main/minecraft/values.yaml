@@ -1,7 +1,8 @@
 replicaCount: 1
 
 image:
-  repository: registry-2.yunna.net/itzg/minecraft-server
+  imageRegistry: "registry-2.yunna.net"
+  repository: itzg/minecraft-server
   tag: ""  # 默认为空,表示不指定标签
   pullPolicy: IfNotPresent
 
@@ -9,10 +10,6 @@ service:
   type: NodePort
   port: 25565
   nodePort: 32025
-
-persistence:
-  storageClass: "local"
-  size: 10Gi
 
 resources:
   requests:
@@ -22,7 +19,14 @@ resources:
     memory: 2Gi
     cpu: 1
 
-minecraftServer:
-  eula: "TRUE"
-  type: "PAPER"
-  memory: "1G"
+persistence:
+  storageClass: "local"
+  size: 10Gi
+
+env:
+  - name: EULA
+    value: "FALSE"  # 必须设置为 "TRUE"
+  - name: TYPE
+    value: "PAPER"  # 服务器类型
+  - name: MEMORY
+    value: "1G"  # 分配给服务器的内存

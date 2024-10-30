@@ -8,7 +8,7 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: 25565
+      targetPort: {{ .Values.service.targetPort | default 25565 }}
       protocol: TCP
       name: minecraft
       {{- if and (eq .Values.service.type "NodePort") .Values.service.nodePort }}
