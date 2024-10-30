@@ -33,4 +33,4 @@ env:
   - name: MEMORY
     value: "1G"  # 分配给服务器的内存
   - name: ONLINE_MODE
-    value: "FALSE"  # 分配给服务器的内存
+    value: "FALSE"  # 在线模式选择
