@@ -27,8 +27,10 @@ persistence:
 
 env:
   - name: EULA
-    value: "FALSE"  # 必须设置为 "TRUE"
+    value: "TRUE"  # 必须设置为 "TRUE"
   - name: TYPE
     value: "PAPER"  # 服务器类型
   - name: MEMORY
     value: "1G"  # 分配给服务器的内存
+  - name: ONLINE_MODE
+    value: "FALSE"  # 分配给服务器的内存
