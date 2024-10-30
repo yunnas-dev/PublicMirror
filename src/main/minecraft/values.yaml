@@ -20,8 +20,10 @@ resources:
     cpu: 1
 
 persistence:
-  storageClass: "local"
+  enabled: true
+  accessMode: ReadWriteOnce  # 或者其他有效的访问模式
   size: 10Gi
+  storageClass: "local"
 
 env:
   - name: EULA
