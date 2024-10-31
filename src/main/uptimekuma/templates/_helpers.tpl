@@ -2,7 +2,7 @@
 Generate the full name of the release, limiting to 63 characters 
 */}}
 {{- define "uptime-kuma.fullname" -}}
-{{- printf "%s-%s" .Release.Name "uptime-kuma" | trunc 63 | trimSuffix "-" -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/* 
