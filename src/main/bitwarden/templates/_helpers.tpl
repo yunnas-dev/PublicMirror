@@ -2,7 +2,7 @@
 Generate the fullname of the release, limiting to 63 characters
 */}}
 {{- define "bitwarden.fullname" -}}
-{{- printf "%s-%s" .Release.Name "bitwarden" | trunc 63 | trimSuffix "-" -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*

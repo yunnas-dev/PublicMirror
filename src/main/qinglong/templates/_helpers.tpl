@@ -2,7 +2,7 @@
 Generate the fullname of the release, limiting to 63 characters
 */}}
 {{- define "qinglong.fullname" -}}
-{{- printf "%s-%s" .Release.Name "qinglong" | trunc 63 | trimSuffix "-" -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*

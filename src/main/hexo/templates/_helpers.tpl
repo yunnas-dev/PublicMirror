@@ -3,7 +3,7 @@ Generate the fullname of the release
 Usage: {{ include "hexo.fullname" . }}
 */}}
 {{- define "hexo.fullname" -}}
-{{- printf "%s-%s" .Release.Name "hexo" | trunc 63 | trimSuffix "-" -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- end }}
 
 {{/* 
