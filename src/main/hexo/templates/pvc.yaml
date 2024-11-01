@@ -6,8 +6,8 @@ metadata:
     {{ include "hexo.labels" . | nindent 4 }}
 spec:
   accessModes:
-    - {{ .Values.persistence.hexo.accessMode }}
+    - {{ .Values.persistence.accessMode }}
   resources:
     requests:
-      storage: {{ .Values.persistence.hexo.size }}
-  storageClassName: {{ .Values.persistence.hexo.storageClass | quote }}
+      storage: {{ .Values.persistence.size }}
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
