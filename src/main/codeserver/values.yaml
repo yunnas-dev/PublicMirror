@@ -28,6 +28,6 @@ env:
   PUID: "1000"
   PGID: "1000"
   TZ: "Asia/Shanghai"
-  PASSWORD: ""
-  SUDO_PASSWORD: ""
+  PASSWORD: "yunna"
+  SUDO_PASSWORD: "yunna"
   DEFAULT_WORKSPACE: "/config/workspace"
