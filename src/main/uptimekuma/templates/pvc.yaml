@@ -6,8 +6,8 @@ metadata:
     app: {{ include "uptime-kuma.name" . }}
 spec:
   accessModes:
-    - {{ .Values.persistence.uptimeKuma.accessMode }}
+    - {{ .Values.persistence.accessMode }}
   resources:
     requests:
-      storage: {{ .Values.persistence.uptimeKuma.size }}
-  storageClassName: {{ .Values.persistence.uptimeKuma.storageClass | quote }}
+      storage: {{ .Values.persistence.size }}
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
