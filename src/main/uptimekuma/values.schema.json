@@ -1,0 +1,84 @@
+{
+    "$schema": "http://json.schemastore.org/helm-schema.json",
+    "type": "object",
+    "properties": {
+      "replicaCount": {
+        "type": "integer",
+        "description": "副本数量"
+      },
+      "resources": {
+        "type": "object",
+        "properties": {
+          "requests": {
+            "type": "object",
+            "properties": {
+              "cpu": {
+                "type": "string",
+                "description": "CPU 请求"
+              },
+              "memory": {
+                "type": "string",
+                "description": "内存请求"
+              }
+            },
+            "required": ["cpu", "memory"]
+          },
+          "limits": {
+            "type": "object",
+            "properties": {
+              "cpu": {
+                "type": "string",
+                "description": "CPU 限制"
+              },
+              "memory": {
+                "type": "string",
+                "description": "内存限制"
+              }
+            },
+            "required": ["cpu", "memory"]
+          }
+        },
+        "required": ["requests", "limits"]
+      },
+      "persistence": {
+        "type": "object",
+        "properties": {
+          "uptimeKuma": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "description": "启用 PVC"
+              },
+              "size": {
+                "type": "string",
+                "description": "PVC 大小"
+              }
+            },
+            "required": ["enabled", "size"]
+          }
+        },
+        "required": ["uptimeKuma"]
+      },
+      "env": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "环境变量名称"
+            },
+            "value": {
+              "type": "string",
+              "description": "环境变量值"
+            }
+          },
+          "required": ["name", "value"]
+        },
+        "description": "容器中需要设置的环境变量列表"
+      }
+    },
+    "required": ["replicaCount", "resources", "persistence"]
+  }
+  
