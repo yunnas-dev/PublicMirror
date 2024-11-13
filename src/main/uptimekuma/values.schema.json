@@ -7,29 +7,26 @@
             "title": "副本数量",
             "description": "副本数量",
             "form": true,
-            "minimum": 1
+            "minimum": 1,
+            "default": 1
         },
         "resources": {
             "type": "object",
             "title": "资源配置",
-            "form": true,
             "properties": {
                 "requests": {
                     "type": "object",
                     "title": "资源请求",
-                    "form": true,
                     "properties": {
                         "cpu": {
                             "type": "string",
                             "title": "CPU 请求",
-                            "description": "CPU 请求",
-                            "form": true
+                            "description": "CPU 请求"
                         },
                         "memory": {
                             "type": "string",
                             "title": "内存请求",
-                            "description": "内存请求",
-                            "form": true
+                            "description": "内存请求"
                         }
                     },
                     "required": ["cpu", "memory"]
@@ -37,19 +34,16 @@
                 "limits": {
                     "type": "object",
                     "title": "资源限制",
-                    "form": true,
                     "properties": {
                         "cpu": {
                             "type": "string",
                             "title": "CPU 限制",
-                            "description": "CPU 限制",
-                            "form": true
+                            "description": "CPU 限制"
                         },
                         "memory": {
                             "type": "string",
                             "title": "内存限制",
-                            "description": "内存限制",
-                            "form": true
+                            "description": "内存限制"
                         }
                     },
                     "required": ["cpu", "memory"]
@@ -60,24 +54,20 @@
         "persistence": {
             "type": "object",
             "title": "持久化存储",
-            "form": true,
             "properties": {
                 "uptimeKuma": {
                     "type": "object",
                     "title": "Uptime Kuma 配置",
-                    "form": true,
                     "properties": {
                         "enabled": {
                             "type": "boolean",
                             "title": "启用持久化存储",
-                            "description": "是否启用持久化存储",
-                            "form": true
+                            "description": "是否启用持久化存储"
                         },
                         "size": {
                             "type": "string",
                             "title": "存储大小",
-                            "description": "持久化存储的大小",
-                            "form": true
+                            "description": "持久化存储的大小"
                         }
                     },
                     "required": ["enabled", "size"]
@@ -97,17 +87,30 @@
                         "type": "string",
                         "title": "变量名称",
                         "description": "环境变量的名称",
-                        "form": true
+                        "form": true,
+                        "enum": ["NODE_ENV", "KUMA_DEBUG"]
                     },
                     "value": {
                         "type": "string",
                         "title": "变量值",
                         "description": "环境变量的值",
-                        "form": true
+                        "form": true,
+                        "default": "production",
+                        "enum": ["production", "development", "true", "false"]
                     }
                 },
                 "required": ["name", "value"]
-            }
+            },
+            "default": [
+                {
+                    "name": "NODE_ENV",
+                    "value": "production"
+                },
+                {
+                    "name": "KUMA_DEBUG",
+                    "value": "false"
+                }
+            ]
         }
     },
     "required": ["replicaCount", "resources", "persistence"]
