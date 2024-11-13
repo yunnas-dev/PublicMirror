@@ -1,117 +1,112 @@
 {
-    "$schema": "https://json-schema.org/draft-07/schema#",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/application-config.schema.json",
+    "title": "Application Configuration Schema",
     "type": "object",
-    "additionalProperties": false,
+    "definitions": {
+      "cpuFormat": {
+        "type": "string",
+        "pattern": "^[0-9]+(m)?$",
+        "description": "CPU资源配置格式"
+      },
+      "memoryFormat": {
+        "type": "string",
+        "pattern": "^[0-9]+(Mi|Gi)$",
+        "description": "内存资源配置格式"
+      },
+      "resourceObject": {
+        "type": "object",
+        "required": ["cpu", "memory"],
+        "properties": {
+          "cpu": {
+            "$ref": "#/definitions/cpuFormat"
+          },
+          "memory": {
+            "$ref": "#/definitions/memoryFormat"
+          }
+        }
+      }
+    },
     "properties": {
       "replicaCount": {
         "type": "integer",
         "title": "副本数量",
         "description": "副本数量",
-        "form": true,
         "minimum": 1,
         "default": 1
       },
       "resources": {
         "type": "object",
         "title": "资源配置",
-        "additionalProperties": false,
+        "required": ["requests", "limits"],
         "properties": {
           "requests": {
-            "type": "object",
-            "title": "资源请求",
-            "additionalProperties": false,
-            "properties": {
-              "cpu": {
-                "type": "string",
-                "title": "CPU 请求",
-                "description": "CPU 请求",
-                "pattern": "^[0-9]+(m|)$"
-              },
-              "memory": {
-                "type": "string",
-                "title": "内存请求",
-                "description": "内存请求",
-                "pattern": "^[0-9]+(Mi|Gi)$"
+            "allOf": [
+              { "$ref": "#/definitions/resourceObject" },
+              {
+                "title": "资源请求",
+                "description": "容器资源请求配置"
               }
-            },
-            "required": ["cpu", "memory"]
+            ]
           },
           "limits": {
-            "type": "object",
-            "title": "资源限制",
-            "additionalProperties": false,
-            "properties": {
-              "cpu": {
-                "type": "string",
-                "title": "CPU 限制",
-                "description": "CPU 限制",
-                "pattern": "^[0-9]+(m|)$"
-              },
-              "memory": {
-                "type": "string",
-                "title": "内存限制",
-                "description": "内存限制",
-                "pattern": "^[0-9]+(Mi|Gi)$"
+            "allOf": [
+              { "$ref": "#/definitions/resourceObject" },
+              {
+                "title": "资源限制",
+                "description": "容器资源限制配置"
               }
-            },
-            "required": ["cpu", "memory"]
+            ]
           }
-        },
-        "required": ["requests", "limits"]
+        }
       },
       "persistence": {
         "type": "object",
         "title": "持久化存储",
-        "additionalProperties": false,
+        "required": ["uptimeKuma"],
         "properties": {
           "uptimeKuma": {
             "type": "object",
             "title": "Uptime Kuma 配置",
-            "additionalProperties": false,
+            "required": ["enabled", "size"],
             "properties": {
               "enabled": {
                 "type": "boolean",
                 "title": "启用持久化存储",
-                "description": "是否启用持久化存储"
+                "description": "是否启用持久化存储",
+                "default": false
               },
               "size": {
-                "type": "string",
+                "$ref": "#/definitions/memoryFormat",
                 "title": "存储大小",
-                "description": "持久化存储的大小",
-                "pattern": "^[0-9]+(Mi|Gi)$"
+                "description": "持久化存储的大小"
               }
-            },
-            "required": ["enabled", "size"]
+            }
           }
-        },
-        "required": ["uptimeKuma"]
+        }
       },
       "env": {
         "type": "array",
         "title": "环境变量",
         "description": "需要在容器中设置的环境变量列表",
-        "form": true,
         "items": {
           "type": "object",
-          "additionalProperties": false,
+          "required": ["name", "value"],
           "properties": {
             "name": {
               "type": "string",
               "title": "变量名称",
               "description": "环境变量的名称",
-              "form": true,
               "enum": ["NODE_ENV", "KUMA_DEBUG"]
             },
             "value": {
               "type": "string",
               "title": "变量值",
               "description": "环境变量的值",
-              "form": true,
-              "default": "production",
-              "enum": ["production", "development", "true", "false"]
+              "enum": ["production", "development", "true", "false"],
+              "default": "production"
             }
-          },
-          "required": ["name", "value"]
+          }
         },
         "default": [
           {
