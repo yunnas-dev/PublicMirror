@@ -1,84 +1,114 @@
 {
-    "$schema": "http://json.schemastore.org/helm-schema.json",
+    "$schema": "https://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
-      "replicaCount": {
-        "type": "integer",
-        "description": "副本数量"
-      },
-      "resources": {
-        "type": "object",
-        "properties": {
-          "requests": {
-            "type": "object",
-            "properties": {
-              "cpu": {
-                "type": "string",
-                "description": "CPU 请求"
-              },
-              "memory": {
-                "type": "string",
-                "description": "内存请求"
-              }
-            },
-            "required": ["cpu", "memory"]
-          },
-          "limits": {
-            "type": "object",
-            "properties": {
-              "cpu": {
-                "type": "string",
-                "description": "CPU 限制"
-              },
-              "memory": {
-                "type": "string",
-                "description": "内存限制"
-              }
-            },
-            "required": ["cpu", "memory"]
-          }
+        "replicaCount": {
+            "type": "integer",
+            "title": "副本数量",
+            "description": "副本数量",
+            "form": true,
+            "minimum": 1
         },
-        "required": ["requests", "limits"]
-      },
-      "persistence": {
-        "type": "object",
-        "properties": {
-          "uptimeKuma": {
+        "resources": {
             "type": "object",
+            "title": "资源配置",
+            "form": true,
             "properties": {
-              "enabled": {
-                "type": "boolean",
-                "description": "启用 PVC"
-              },
-              "size": {
-                "type": "string",
-                "description": "PVC 大小"
-              }
+                "requests": {
+                    "type": "object",
+                    "title": "资源请求",
+                    "form": true,
+                    "properties": {
+                        "cpu": {
+                            "type": "string",
+                            "title": "CPU 请求",
+                            "description": "CPU 请求",
+                            "form": true
+                        },
+                        "memory": {
+                            "type": "string",
+                            "title": "内存请求",
+                            "description": "内存请求",
+                            "form": true
+                        }
+                    },
+                    "required": ["cpu", "memory"]
+                },
+                "limits": {
+                    "type": "object",
+                    "title": "资源限制",
+                    "form": true,
+                    "properties": {
+                        "cpu": {
+                            "type": "string",
+                            "title": "CPU 限制",
+                            "description": "CPU 限制",
+                            "form": true
+                        },
+                        "memory": {
+                            "type": "string",
+                            "title": "内存限制",
+                            "description": "内存限制",
+                            "form": true
+                        }
+                    },
+                    "required": ["cpu", "memory"]
+                }
             },
-            "required": ["enabled", "size"]
-          }
+            "required": ["requests", "limits"]
         },
-        "required": ["uptimeKuma"]
-      },
-      "env": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string",
-              "description": "环境变量名称"
+        "persistence": {
+            "type": "object",
+            "title": "持久化存储",
+            "form": true,
+            "properties": {
+                "uptimeKuma": {
+                    "type": "object",
+                    "title": "Uptime Kuma 配置",
+                    "form": true,
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "title": "启用持久化存储",
+                            "description": "是否启用持久化存储",
+                            "form": true
+                        },
+                        "size": {
+                            "type": "string",
+                            "title": "存储大小",
+                            "description": "持久化存储的大小",
+                            "form": true
+                        }
+                    },
+                    "required": ["enabled", "size"]
+                }
             },
-            "value": {
-              "type": "string",
-              "description": "环境变量值"
+            "required": ["uptimeKuma"]
+        },
+        "env": {
+            "type": "array",
+            "title": "环境变量",
+            "description": "需要在容器中设置的环境变量列表",
+            "form": true,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "title": "变量名称",
+                        "description": "环境变量的名称",
+                        "form": true
+                    },
+                    "value": {
+                        "type": "string",
+                        "title": "变量值",
+                        "description": "环境变量的值",
+                        "form": true
+                    }
+                },
+                "required": ["name", "value"]
             }
-          },
-          "required": ["name", "value"]
-        },
-        "description": "容器中需要设置的环境变量列表"
-      }
+        }
     },
     "required": ["replicaCount", "resources", "persistence"]
-  }
-  
+}
