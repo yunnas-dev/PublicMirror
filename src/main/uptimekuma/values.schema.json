@@ -1,124 +1,168 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "https://example.com/application-config.schema.json",
-    "title": "Application Configuration Schema",
-    "type": "object",
-    "definitions": {
-      "cpuFormat": {
-        "type": "string",
-        "pattern": "^[0-9]+(m)?$",
-        "description": "CPU资源配置格式"
-      },
-      "memoryFormat": {
-        "type": "string",
-        "pattern": "^[0-9]+(Mi|Gi)$",
-        "description": "内存资源配置格式"
-      },
-      "resourceObject": {
-        "type": "object",
-        "required": ["cpu", "memory"],
-        "properties": {
-          "cpu": {
-            "$ref": "#/definitions/cpuFormat"
-          },
-          "memory": {
-            "$ref": "#/definitions/memoryFormat"
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "properties": {
+    "replicaCount": {
+      "type": "integer",
+      "title": "Replica Count",
+      "description": "Number of replicas to deploy",
+      "minimum": 1,
+      "default": 1
+    },
+    "image": {
+      "type": "object",
+      "title": "Container Image Configuration",
+      "required": ["imageRegistry", "repository", "tag"],
+      "properties": {
+        "imageRegistry": {
+          "type": "string",
+          "title": "Image Registry",
+          "default": "registry-2.yunna.net"
+        },
+        "repository": {
+          "type": "string",
+          "title": "Image Repository",
+          "default": "louislam/uptime-kuma"
+        },
+        "tag": {
+          "type": "string",
+          "title": "Image Tag",
+          "default": "latest"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "title": "Image Pull Policy",
+          "enum": ["IfNotPresent", "Always", "Never"],
+          "default": "IfNotPresent"
+        }
+      }
+    },
+    "service": {
+      "type": "object",
+      "title": "Service Configuration",
+      "properties": {
+        "type": {
+          "type": "string",
+          "title": "Service Type",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+          "default": "ClusterIP"
+        },
+        "port": {
+          "type": "integer",
+          "title": "Service Port",
+          "minimum": 1,
+          "maximum": 65535,
+          "default": 3001
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "title": "Resource Requirements",
+      "properties": {
+        "limits": {
+          "type": "object",
+          "title": "Resource Limits",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "title": "CPU Limit",
+              "pattern": "^[0-9]+m?$",
+              "default": "1000m"
+            },
+            "memory": {
+              "type": "string",
+              "title": "Memory Limit",
+              "pattern": "^[0-9]+(Mi|Gi)$",
+              "default": "1024Mi"
+            }
+          }
+        },
+        "requests": {
+          "type": "object",
+          "title": "Resource Requests",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "title": "CPU Request",
+              "pattern": "^[0-9]+m?$",
+              "default": "500m"
+            },
+            "memory": {
+              "type": "string",
+              "title": "Memory Request",
+              "pattern": "^[0-9]+(Mi|Gi)$",
+              "default": "512Mi"
+            }
           }
         }
       }
     },
-    "properties": {
-      "replicaCount": {
-        "type": "integer",
-        "title": "副本数量",
-        "description": "副本数量",
-        "minimum": 1,
-        "default": 1
-      },
-      "resources": {
-        "type": "object",
-        "title": "资源配置",
-        "required": ["requests", "limits"],
-        "properties": {
-          "requests": {
-            "allOf": [
-              { "$ref": "#/definitions/resourceObject" },
-              {
-                "title": "资源请求",
-                "description": "容器资源请求配置"
-              }
-            ]
-          },
-          "limits": {
-            "allOf": [
-              { "$ref": "#/definitions/resourceObject" },
-              {
-                "title": "资源限制",
-                "description": "容器资源限制配置"
-              }
-            ]
-          }
+    "persistence": {
+      "type": "object",
+      "title": "Persistence Configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enable Persistence",
+          "default": true
+        },
+        "accessMode": {
+          "type": "string",
+          "title": "Access Mode",
+          "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"],
+          "default": "ReadWriteOnce"
+        },
+        "size": {
+          "type": "string",
+          "title": "Storage Size",
+          "pattern": "^[0-9]+(Mi|Gi)$",
+          "default": "1Gi"
+        },
+        "storageClass": {
+          "type": "string",
+          "title": "Storage Class",
+          "default": "local"
         }
-      },
-      "persistence": {
-        "type": "object",
-        "title": "持久化存储",
-        "required": ["uptimeKuma"],
-        "properties": {
-          "uptimeKuma": {
-            "type": "object",
-            "title": "Uptime Kuma 配置",
-            "required": ["enabled", "size"],
-            "properties": {
-              "enabled": {
-                "type": "boolean",
-                "title": "启用持久化存储",
-                "description": "是否启用持久化存储",
-                "default": false
-              },
-              "size": {
-                "$ref": "#/definitions/memoryFormat",
-                "title": "存储大小",
-                "description": "持久化存储的大小"
-              }
-            }
-          }
-        }
-      },
-      "env": {
-        "type": "array",
-        "title": "环境变量",
-        "description": "需要在容器中设置的环境变量列表",
-        "items": {
+      }
+    },
+    "env": {
+      "type": "object",
+      "title": "Environment Variables",
+      "properties": {
+        "env1": {
           "type": "object",
-          "required": ["name", "value"],
+          "title": "Environment Variable 1",
           "properties": {
             "name": {
               "type": "string",
-              "title": "变量名称",
-              "description": "环境变量的名称",
-              "enum": ["NODE_ENV", "KUMA_DEBUG"]
+              "title": "Variable Name",
+              "default": "NODE_ENV"
             },
             "value": {
               "type": "string",
-              "title": "变量值",
-              "description": "环境变量的值",
-              "enum": ["production", "development", "true", "false"],
+              "title": "Variable Value",
               "default": "production"
             }
           }
         },
-        "default": [
-          {
-            "name": "NODE_ENV",
-            "value": "production"
-          },
-          {
-            "name": "KUMA_DEBUG",
-            "value": "false"
+        "env2": {
+          "type": "object",
+          "title": "Environment Variable 2",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "Variable Name",
+              "default": "KUMA_DEBUG"
+            },
+            "value": {
+              "type": "string",
+              "title": "Variable Value",
+              "default": "false"
+            }
           }
-        ]
+        }
       }
-    },
-    "required": ["replicaCount", "resources", "persistence"]
+    }
   }
+}
