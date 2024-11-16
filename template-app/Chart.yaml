@@ -1,0 +1,21 @@
+apiVersion: v2
+name: template-app
+description: |
+  This is a template application for standardized Helm chart development.
+  这是一个用于标准化 Helm Chart 开发的模板应用。
+version: 0.1.0
+appVersion: "1.0.0"
+home: https://github.com/organization/template-app
+sources:
+  - https://github.com/organization/template-app
+maintainers:
+  - name: "Template Team"
+    email: "template@example.com"
+annotations:
+  "yunna.net/category": "Template"
+  "yunna.net/category-zh": "模板"
+keywords:
+  - "template"
+  - "application"
+  - "模板"
+  - "应用"
