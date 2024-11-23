@@ -25,7 +25,9 @@ persistence:
   storageClass: "local"
 
 env:
-  - name: NODE_ENV
+  env1:
+    name: NODE_ENV
     value: production
-  - name: KUMA_DEBUG
-    value: "false"
+  env2:
+    name: KUMA_DEBUG
+    value: false
