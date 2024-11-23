@@ -30,4 +30,4 @@ env:
     value: production
   env2:
     name: KUMA_DEBUG
-    value: false
+    value: "false"
