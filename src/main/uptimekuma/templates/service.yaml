@@ -3,11 +3,11 @@ kind: Service
 metadata:
   name: {{ include "uptime-kuma.fullname" . }}
   labels:
-    app: {{ include "uptime-kuma.name" . }}
+    {{- include "uptime-kuma.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
       targetPort: 3001
   selector:
-    app: {{ include "uptime-kuma.name" . }}
+    {{- include "uptime-kuma.selectorLabels" . | nindent 4 }}

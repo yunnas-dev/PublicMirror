@@ -21,3 +21,11 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/version: {{ .Chart.AppVersion }}
 helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
 {{- end -}}
+
+{{/*
+Selector labels
+*/}}
+{{- define "uptime-kuma.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "uptime-kuma.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end -}}

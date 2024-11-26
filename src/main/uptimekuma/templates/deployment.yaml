@@ -3,16 +3,17 @@ kind: Deployment
 metadata:
   name: {{ include "uptime-kuma.fullname" . }}
   labels:
-    {{ include "uptime-kuma.labels" . | nindent 4 }}
+    {{- include "uptime-kuma.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "uptime-kuma.name" . }}
+      {{- include "uptime-kuma.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ include "uptime-kuma.name" . }}
+        {{- include "uptime-kuma.labels" . | nindent 8 }}
+        {{- include "uptime-kuma.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: uptime-kuma
