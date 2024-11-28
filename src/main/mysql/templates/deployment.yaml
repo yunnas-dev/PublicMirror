@@ -24,6 +24,13 @@ spec:
           volumeMounts:
             - name: run-mysql
               mountPath: /var/run/mysqld
+          resources:
+            requests:
+              memory: "{{ .Values.initContainerResources.requests.memory | default '64Mi' }}"
+              cpu: "{{ .Values.initContainerResources.requests.cpu | default '50m' }}"
+            limits:
+              memory: "{{ .Values.initContainerResources.limits.memory | default '128Mi' }}"
+              cpu: "{{ .Values.initContainerResources.limits.cpu | default '100m' }}"
       containers:
         - name: mysql
           image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"

@@ -34,3 +34,11 @@ env:
   env2:
     name: MYSQL_DATABASE
     value: test
+
+initContainerResources:
+  requests:
+    memory: "64Mi"
+    cpu: "50m"
+  limits:
+    memory: "128Mi"
+    cpu: "100m"
