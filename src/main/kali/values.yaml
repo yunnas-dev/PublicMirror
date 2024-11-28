@@ -1,0 +1,33 @@
+replicaCount: 1
+
+image:
+  imageRegistry: "registry-2.yunna.net"
+  repository: kalilinux/kali-tools-top10
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 22
+
+resources:
+  limits:
+    cpu: 2000m
+    memory: 4096Mi
+  requests:
+    cpu: 1000m
+    memory: 2048Mi
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 20Gi
+  storageClass: "local"
+
+env:
+  env1:
+    name: DEBIAN_FRONTEND
+    value: noninteractive
+  env2:
+    name: TZ
+    value: Asia/Shanghai
