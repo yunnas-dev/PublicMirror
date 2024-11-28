@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   imageRegistry: "registry-2.yunna.net"
-  repository: kalilinux/kali
+  repository: kalilinux/kali-rolling
   tag: "latest"
   pullPolicy: IfNotPresent
 
