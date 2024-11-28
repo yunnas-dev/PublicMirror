@@ -1,23 +1,31 @@
-{{/*
-Template App 完整名称
+{{/* 
+Generate the full name of the release, limiting to 63 characters 
 */}}
-{{- define "template-app.fullname" -}}
+{{- define "my-app.fullname" -}}
 {{- .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{/*
-Template App 名称
+{{/* 
+Generate the name of the chart 
 */}}
-{{- define "template-app.name" -}}
-template-app
+{{- define "my-app.name" -}}
+my-app
 {{- end -}}
 
-{{/*
-通用标签
+{{/* 
+Generate common labels 
 */}}
-{{- define "template-app.labels" -}}
-app.kubernetes.io/name: {{ include "template-app.name" . }}
+{{- define "my-app.labels" -}}
+app.kubernetes.io/name: {{ include "my-app.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/version: {{ .Chart.AppVersion }}
 helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+{{- end -}}
+
+{{/*
+Selector labels
+*/}}
+{{- define "my-app.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "my-app.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}

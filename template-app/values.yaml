@@ -1,14 +1,14 @@
 replicaCount: 1
 
 image:
-  imageRegistry: "registry-2.yunna.net"
-  repository: organization/template-app
-  tag: "1.0.0"
+  imageRegistry: "docker.io"
+  repository: nginx
+  tag: "latest"
   pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
-  port: 8080
+  port: 80
 
 resources:
   limits:
@@ -22,10 +22,12 @@ persistence:
   enabled: true
   accessMode: ReadWriteOnce
   size: 1Gi
-  storageClass: "local"
+  storageClass: "standard"
 
 env:
-  - name: APP_ENV
+  env1:
+    name: NODE_ENV
     value: production
-  - name: DEBUG
+  env2:
+    name: DEBUG
     value: "false"

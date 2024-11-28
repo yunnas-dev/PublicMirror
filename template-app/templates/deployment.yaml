@@ -1,40 +1,49 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "template-app.fullname" . }}
+  name: {{ include "my-app.fullname" . }}
   labels:
-    {{- include "template-app.labels" . | nindent 4 }}
+    {{- include "my-app.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "template-app.name" . }}
+      {{- include "my-app.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ include "template-app.name" . }}
+        {{- include "my-app.labels" . | nindent 8 }}
+        {{- include "my-app.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: {{ .Chart.Name }}
+        - name: my-app
           image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
           ports:
-            - containerPort: {{ .Values.service.port }}
+            - containerPort: 80
           env:
+            {{- if kindIs "array" .Values.env }}
             {{- range .Values.env }}
-            - name: {{ .name }}
-              value: {{ .value | quote }}
+            - name: "{{ .name }}"
+              value: "{{ .value }}"
+            {{- end }}
+            {{- else if kindIs "map" .Values.env }}
+            {{- range $key, $value := .Values.env }}
+            - name: "{{ $value.name }}"
+              value: "{{ $value.value }}"
+            {{- end }}
             {{- end }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-          {{- if .Values.persistence.enabled }}
+            requests:
+              memory: "{{ .Values.resources.requests.memory }}"
+              cpu: "{{ .Values.resources.requests.cpu }}"
+            limits:
+              memory: "{{ .Values.resources.limits.memory }}"
+              cpu: "{{ .Values.resources.limits.cpu }}"
           volumeMounts:
-            - name: data
+            - name: my-app-data
               mountPath: /app/data
-          {{- end }}
-      {{- if .Values.persistence.enabled }}
       volumes:
-        - name: data
+        - name: my-app-data
           persistentVolumeClaim:
-            claimName: {{ include "template-app.fullname" . }}-pvc
-      {{- end }}
+            claimName: {{ include "my-app.fullname" . }}-pvc
