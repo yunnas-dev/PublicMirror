@@ -15,10 +15,22 @@ spec:
         {{- include "mysql.labels" . | nindent 8 }}
         {{- include "mysql.selectorLabels" . | nindent 8 }}
     spec:
+      securityContext:
+        fsGroup: 999
+      initContainers:
+        - name: init-mysql
+          image: busybox:1.28
+          command: ['sh', '-c', 'mkdir -p /var/run/mysqld; chmod 777 /var/run/mysqld']
+          volumeMounts:
+            - name: run-mysql
+              mountPath: /var/run/mysqld
       containers:
         - name: mysql
           image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+          securityContext:
+            runAsUser: 999
+            runAsGroup: 999
           ports:
             - containerPort: 3306
               name: mysql
@@ -46,19 +58,29 @@ spec:
           volumeMounts:
             - name: mysql-data
               mountPath: /var/lib/mysql
+            - name: mysql-config
+              mountPath: /etc/mysql/my.cnf
+              subPath: my.cnf
+            - name: run-mysql
+              mountPath: /var/run/mysqld
           livenessProbe:
             exec:
-              command: ["mysqladmin", "ping"]
-            initialDelaySeconds: 30
+              command: ["mysqladmin", "ping", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+            initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 5
           readinessProbe:
             exec:
-              command: ["mysql", "-h", "127.0.0.1", "-e", "SELECT 1"]
-            initialDelaySeconds: 5
+              command: ["mysql", "-uroot", "-p${MYSQL_ROOT_PASSWORD}", "-e", "SELECT 1"]
+            initialDelaySeconds: 30
             periodSeconds: 2
             timeoutSeconds: 1
       volumes:
         - name: mysql-data
           persistentVolumeClaim:
             claimName: {{ include "mysql.fullname" . }}-pvc
+        - name: mysql-config
+          configMap:
+            name: {{ include "mysql.fullname" . }}-config
+        - name: run-mysql
+          emptyDir: {}
