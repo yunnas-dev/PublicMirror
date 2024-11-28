@@ -6,6 +6,12 @@ image:
   tag: "8.0"
   pullPolicy: IfNotPresent
 
+mysql:
+  rootPassword: changeme
+  database: mydb
+  user: user
+  password: changeme
+
 service:
   type: ClusterIP
   port: 3306
@@ -27,13 +33,13 @@ persistence:
 env:
   env1:
     name: MYSQL_ROOT_PASSWORD
-    value: changeme
+    value: "{{ .Values.mysql.rootPassword }}"
   env2:
     name: MYSQL_DATABASE
-    value: mydb
+    value: "{{ .Values.mysql.database }}"
   env3:
     name: MYSQL_USER
-    value: user
+    value: "{{ .Values.mysql.user }}"
   env4:
     name: MYSQL_PASSWORD
-    value: changeme
+    value: "{{ .Values.mysql.password }}"

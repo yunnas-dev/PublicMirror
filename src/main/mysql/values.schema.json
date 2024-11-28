@@ -11,6 +11,7 @@
     },
     "image": {
       "type": "object",
+      "title": "镜像配置",
       "properties": {
         "imageRegistry": {
           "type": "string",
@@ -35,13 +36,59 @@
         }
       }
     },
+    "mysql": {
+      "type": "object",
+      "title": "MySQL配置",
+      "required": ["rootPassword", "database", "user", "password"],
+      "properties": {
+        "rootPassword": {
+          "type": "string",
+          "title": "Root密码",
+          "default": "changeme"
+        },
+        "database": {
+          "type": "string",
+          "title": "数据库名称",
+          "default": "mydb"
+        },
+        "user": {
+          "type": "string",
+          "title": "用户名",
+          "default": "user"
+        },
+        "password": {
+          "type": "string",
+          "title": "用户密码",
+          "default": "changeme"
+        }
+      }
+    },
+    "service": {
+      "type": "object",
+      "title": "服务配置",
+      "properties": {
+        "type": {
+          "type": "string",
+          "title": "服务类型",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+          "default": "ClusterIP"
+        },
+        "port": {
+          "type": "integer",
+          "title": "服务端口",
+          "default": 3306
+        }
+      }
+    },
     "resources": {
       "type": "object",
       "title": "资源需求",
+      "required": ["limits", "requests"],
       "properties": {
         "limits": {
           "type": "object",
           "title": "资源限制",
+          "required": ["cpu", "memory"],
           "properties": {
             "cpu": {
               "type": "string",
@@ -60,6 +107,7 @@
         "requests": {
           "type": "object",
           "title": "资源请求",
+          "required": ["cpu", "memory"],
           "properties": {
             "cpu": {
               "type": "string",
@@ -80,6 +128,7 @@
     "persistence": {
       "type": "object",
       "title": "持久化配置",
+      "required": ["enabled", "accessMode", "size", "storageClass"],
       "properties": {
         "enabled": {
           "type": "boolean",
@@ -111,7 +160,7 @@
       "properties": {
         "env1": {
           "type": "object",
-          "title": "Root密码",
+          "title": "Root密码环境变量",
           "properties": {
             "name": {
               "type": "string",
@@ -127,7 +176,7 @@
         },
         "env2": {
           "type": "object",
-          "title": "数据库名",
+          "title": "数据库名环境变量",
           "properties": {
             "name": {
               "type": "string",
@@ -143,7 +192,7 @@
         },
         "env3": {
           "type": "object",
-          "title": "用户名",
+          "title": "用户名环境变量",
           "properties": {
             "name": {
               "type": "string",
@@ -159,7 +208,7 @@
         },
         "env4": {
           "type": "object",
-          "title": "用户密码",
+          "title": "用户密码环境变量",
           "properties": {
             "name": {
               "type": "string",
