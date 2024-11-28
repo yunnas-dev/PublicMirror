@@ -12,15 +12,12 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "kali.labels" . | nindent 8 }}
         {{- include "kali.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: kali
           image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
-          ports:
-            - containerPort: 22
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             {{- if kindIs "array" .Values.env }}
             {{- range .Values.env }}
@@ -33,23 +30,18 @@ spec:
               value: "{{ $value.value }}"
             {{- end }}
             {{- end }}
+          ports:
+            - name: ssh
+              containerPort: 22
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /root
           securityContext:
             privileged: true
-            capabilities:
-              add:
-                - NET_ADMIN
-                - SYS_ADMIN
-          resources:
-            requests:
-              memory: "{{ .Values.resources.requests.memory }}"
-              cpu: "{{ .Values.resources.requests.cpu }}"
-            limits:
-              memory: "{{ .Values.resources.limits.memory }}"
-              cpu: "{{ .Values.resources.limits.cpu }}"
-          volumeMounts:
-            - name: kali-data
-              mountPath: /root
       volumes:
-        - name: kali-data
+        - name: data
           persistentVolumeClaim:
             claimName: {{ include "kali.fullname" . }}-pvc

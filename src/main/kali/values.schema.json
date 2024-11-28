@@ -9,6 +9,50 @@
       "minimum": 1,
       "default": 1
     },
+    "image": {
+      "type": "object",
+      "title": "镜像配置",
+      "properties": {
+        "imageRegistry": {
+          "type": "string",
+          "title": "镜像仓库地址",
+          "default": "registry-2.yunna.net"
+        },
+        "repository": {
+          "type": "string",
+          "title": "镜像名称",
+          "default": "kalilinux/kali"
+        },
+        "tag": {
+          "type": "string",
+          "title": "镜像标签",
+          "default": "latest"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "title": "镜像拉取策略",
+          "enum": ["Always", "IfNotPresent", "Never"],
+          "default": "IfNotPresent"
+        }
+      }
+    },
+    "service": {
+      "type": "object",
+      "title": "服务配置",
+      "properties": {
+        "type": {
+          "type": "string",
+          "title": "服务类型",
+          "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+          "default": "ClusterIP"
+        },
+        "port": {
+          "type": "integer",
+          "title": "服务端口",
+          "default": 22
+        }
+      }
+    },
     "resources": {
       "type": "object",
       "title": "资源需求",
@@ -20,14 +64,12 @@
             "cpu": {
               "type": "string",
               "title": "CPU限制",
-              "pattern": "^[0-9]+m?$",
               "default": "2000m"
             },
             "memory": {
               "type": "string",
               "title": "内存限制",
-              "pattern": "^[0-9]+(Mi|Gi)$",
-              "default": "4096Mi"
+              "default": "4Gi"
             }
           }
         },
@@ -38,14 +80,12 @@
             "cpu": {
               "type": "string",
               "title": "CPU请求",
-              "pattern": "^[0-9]+m?$",
               "default": "1000m"
             },
             "memory": {
               "type": "string",
               "title": "内存请求",
-              "pattern": "^[0-9]+(Mi|Gi)$",
-              "default": "2048Mi"
+              "default": "2Gi"
             }
           }
         }
@@ -69,51 +109,12 @@
         "size": {
           "type": "string",
           "title": "存储大小",
-          "pattern": "^[0-9]+(Mi|Gi)$",
           "default": "20Gi"
         },
         "storageClass": {
           "type": "string",
           "title": "存储类",
           "default": "local"
-        }
-      }
-    },
-    "env": {
-      "type": "object",
-      "title": "环境变量",
-      "properties": {
-        "env1": {
-          "type": "object",
-          "title": "环境变量1",
-          "properties": {
-            "name": {
-              "type": "string",
-              "title": "变量名称",
-              "default": "DEBIAN_FRONTEND"
-            },
-            "value": {
-              "type": "string",
-              "title": "变量值",
-              "default": "noninteractive"
-            }
-          }
-        },
-        "env2": {
-          "type": "object",
-          "title": "环境变量2",
-          "properties": {
-            "name": {
-              "type": "string",
-              "title": "变量名称",
-              "default": "TZ"
-            },
-            "value": {
-              "type": "string",
-              "title": "变量值",
-              "default": "Asia/Shanghai"
-            }
-          }
         }
       }
     }
