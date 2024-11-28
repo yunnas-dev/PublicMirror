@@ -1,23 +1,23 @@
-apiVersion: v1
-appVersion: 5.7.31
-description: Fast, reliable, scalable, and easy to use open-source relational database
-  system.
-engine: gotpl
-home: https://www.mysql.com/
-icon: https://www.mysql.com/common/logos/powered-by-mysql-167x86.png
-keywords:
-- mysql
-- database
-- sql
-maintainers:
-- email: o.with@sportradar.com
-  name: olemarkus
-- email: viglesias@google.com
-  name: viglesiasce
+apiVersion: v2
 name: mysql
-sources:
-- https://github.com/kubernetes/charts
-- https://github.com/docker-library/mysql
+description: |
+  MySQL 是一个流行的开源关系型数据库管理系统。它由瑞典 MySQL AB 公司开发，目前属于 Oracle 公司。MySQL 以其可靠性、易用性和性能优势在 Web 应用程序中得到广泛应用。
 version: 1.6.8
+appVersion: "5.7.31"
+home: https://www.mysql.com/
+sources:
+  - https://github.com/kubernetes/charts
+  - https://github.com/docker-library/mysql
+maintainers:
+  - name: "olemarkus"
+    email: "o.with@sportradar.com"
+  - name: "viglesiasce"
+    email: "viglesias@google.com"
 annotations:
-  "app.kubesphere.io/category": "Database & Cache"
+  "yunna.net/category": "Database"
+  "yunna.net/category-zh": "数据库"
+keywords:
+  - "Database"
+  - "MySQL"
+  - "SQL"
+icon: "https://www.mysql.com/common/logos/powered-by-mysql-167x86.png"
