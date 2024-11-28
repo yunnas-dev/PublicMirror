@@ -26,11 +26,11 @@ spec:
               mountPath: /var/run/mysqld
           resources:
             requests:
-              memory: "{{ .Values.initContainerResources.requests.memory | default '64Mi' }}"
-              cpu: "{{ .Values.initContainerResources.requests.cpu | default '50m' }}"
+              memory: "{{ .Values.initContainerResources.requests.memory }}"
+              cpu: "{{ .Values.initContainerResources.requests.cpu }}"
             limits:
-              memory: "{{ .Values.initContainerResources.limits.memory | default '128Mi' }}"
-              cpu: "{{ .Values.initContainerResources.limits.cpu | default '100m' }}"
+              memory: "{{ .Values.initContainerResources.limits.memory }}"
+              cpu: "{{ .Values.initContainerResources.limits.cpu }}"
       containers:
         - name: mysql
           image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -57,11 +57,11 @@ spec:
             {{- end }}
           resources:
             requests:
-              memory: "{{ .Values.resources.requests.memory | default '512Mi' }}"
-              cpu: "{{ .Values.resources.requests.cpu | default '500m' }}"
+              memory: "{{ .Values.resources.requests.memory }}"
+              cpu: "{{ .Values.resources.requests.cpu }}"
             limits:
-              memory: "{{ .Values.resources.limits.memory | default '1024Mi' }}"
-              cpu: "{{ .Values.resources.limits.cpu | default '1000m' }}"
+              memory: "{{ .Values.resources.limits.memory }}"
+              cpu: "{{ .Values.resources.limits.cpu }}"
           volumeMounts:
             - name: mysql-data
               mountPath: /var/lib/mysql
@@ -72,16 +72,16 @@ spec:
               mountPath: /var/run/mysqld
           livenessProbe:
             exec:
-              command: ["mysqladmin", "ping", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+              command: ["mysqladmin", "ping", "-p${MYSQL_ROOT_PASSWORD}"]
             initialDelaySeconds: 60
             periodSeconds: 10
             timeoutSeconds: 5
           readinessProbe:
             exec:
-              command: ["mysql", "-uroot", "-p${MYSQL_ROOT_PASSWORD}", "-e", "SELECT 1"]
+              command: ["mysqladmin", "ping", "-p${MYSQL_ROOT_PASSWORD}"]
             initialDelaySeconds: 30
-            periodSeconds: 2
-            timeoutSeconds: 1
+            periodSeconds: 5
+            timeoutSeconds: 3
       volumes:
         - name: mysql-data
           persistentVolumeClaim:
