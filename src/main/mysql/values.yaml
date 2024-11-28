@@ -1,16 +1,36 @@
+replicaCount: 1
+
 image:
   imageRegistry: "registry-2.yunna.net"
-  repository: "mysql"
-  tag: "8.0"
-
-mysqlRootPassword: "rootpassword"
+  repository: mysql
+  tag: "5.6"
+  pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
   port: 3306
 
+resources:
+  limits:
+    cpu: 2000m
+    memory: 2048Mi
+  requests:
+    cpu: 1000m
+    memory: 1024Mi
+
 persistence:
   enabled: true
-  size: 8Gi
+  accessMode: ReadWriteOnce
+  size: 10Gi
   storageClass: "local"
-  pvcName: ""
+
+mysql:
+  rootPassword: "mysql123456"
+
+env:
+  env1:
+    name: TZ
+    value: Asia/Shanghai
+  env2:
+    name: MYSQL_DATABASE
+    value: test

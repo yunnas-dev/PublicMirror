@@ -1,19 +1,22 @@
 apiVersion: v2
-appVersion: 8.0
-description: MySQL 是一个开源的关系型数据库管理系统（RDBMS），以稳定性和性能著称。
-icon: https://www.mysql.com/common/logos/powered-by-mysql-167x86.png
-maintainers:
-  - name: 云纳科技
-    email: email@yunna.net
 name: mysql
+description: |
+  MySQL 是世界上最受欢迎的开源关系型数据库管理系统。本 Chart 基于 MySQL 5.6 版本，
+  提供了在 Kubernetes 集群中快速部署 MySQL 数据库的能力，支持数据持久化、自定义配置等特性。
+version: 0.1.0
+appVersion: "5.6"
+home: https://www.mysql.com/
 sources:
   - https://github.com/mysql/mysql-server
-version: 1.0.0
+maintainers:
+  - name: "MySQL Team"
+    email: "mysql@oracle.com"
 annotations:
   "yunna.net/category": "Database"
   "yunna.net/category-zh": "数据库"
 keywords:
-  - database
-  - sql
-  - mysql
-  - relational
+  - "Database"
+  - "MySQL"
+  - "SQL"
+  - "RDBMS"
+icon: "https://www.mysql.com/common/logos/logo-mysql-170x115.png"

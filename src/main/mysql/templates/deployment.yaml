@@ -1,29 +1,64 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql
+  name: {{ include "mysql.fullname" . }}
+  labels:
+    {{- include "mysql.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: mysql
+      {{- include "mysql.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: mysql
+        {{- include "mysql.labels" . | nindent 8 }}
+        {{- include "mysql.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: mysql
-          image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"  # 将 imageRegistry 和 repository 组合起来
-          env:
-            - name: MYSQL_ROOT_PASSWORD
-              value: {{ .Values.mysqlRootPassword | quote }}
+          image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
           ports:
             - containerPort: 3306
+              name: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD  
+              value: {{ .Values.mysql.rootPassword }}
+            {{- if kindIs "array" .Values.env }}
+            {{- range .Values.env }}
+            - name: "{{ .name }}"
+              value: "{{ .value }}"
+            {{- end }}
+            {{- else if kindIs "map" .Values.env }}
+            {{- range $key, $value := .Values.env }}
+            - name: "{{ $value.name }}"
+              value: "{{ $value.value }}"
+            {{- end }}
+            {{- end }}
+          resources:
+            requests:
+              memory: "{{ .Values.resources.requests.memory }}"
+              cpu: "{{ .Values.resources.requests.cpu }}"
+            limits:
+              memory: "{{ .Values.resources.limits.memory }}"
+              cpu: "{{ .Values.resources.limits.cpu }}"
           volumeMounts:
-            - name: mysql-persistent-storage
+            - name: mysql-data
               mountPath: /var/lib/mysql
+          livenessProbe:
+            exec:
+              command: ["mysqladmin", "ping"]
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command: ["mysql", "-h", "127.0.0.1", "-e", "SELECT 1"]
+            initialDelaySeconds: 5
+            periodSeconds: 2
+            timeoutSeconds: 1
       volumes:
-        - name: mysql-persistent-storage
+        - name: mysql-data
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.pvcName | default (include "mysql.fullname" .) }}
+            claimName: {{ include "mysql.fullname" . }}-pvc
