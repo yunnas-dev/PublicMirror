@@ -2,41 +2,46 @@
   "$schema": "http://json-schema.org/schema#",
   "type": "object",
   "properties": {
-    "mysql": {
+    "replicaCount": {
+      "type": "integer",
+      "title": "副本数量",
+      "description": "要部署的副本数量",
+      "minimum": 1,
+      "default": 1
+    },
+    "image": {
       "type": "object",
       "properties": {
-        "rootPassword": {
+        "imageRegistry": {
           "type": "string",
-          "title": "Root密码",
-          "description": "MySQL root用户的密码",
-          "default": "changeme"
+          "title": "镜像仓库地址",
+          "default": "registry-2.yunna.net"
         },
-        "database": {
+        "repository": {
           "type": "string",
-          "title": "数据库名称",
-          "description": "初始创建的数据库名称",
-          "default": "mydb"
+          "title": "镜像名称",
+          "default": "mysql"
         },
-        "user": {
+        "tag": {
           "type": "string",
-          "title": "用户名",
-          "description": "创建的数据库用户名",
-          "default": "user"
+          "title": "镜像标签",
+          "default": "8.0"
         },
-        "password": {
+        "pullPolicy": {
           "type": "string",
-          "title": "用户密码",
-          "description": "数据库用户的密码",
-          "default": "changeme"
+          "title": "镜像拉取策略",
+          "enum": ["Always", "IfNotPresent", "Never"],
+          "default": "IfNotPresent"
         }
       }
     },
     "resources": {
       "type": "object",
-      "title": "资源配置",
+      "title": "资源需求",
       "properties": {
         "limits": {
           "type": "object",
+          "title": "资源限制",
           "properties": {
             "cpu": {
               "type": "string",
@@ -54,6 +59,7 @@
         },
         "requests": {
           "type": "object",
+          "title": "资源请求",
           "properties": {
             "cpu": {
               "type": "string",
@@ -73,11 +79,18 @@
     },
     "persistence": {
       "type": "object",
+      "title": "持久化配置",
       "properties": {
         "enabled": {
           "type": "boolean",
           "title": "启用持久化",
           "default": true
+        },
+        "accessMode": {
+          "type": "string",
+          "title": "访问模式",
+          "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"],
+          "default": "ReadWriteOnce"
         },
         "size": {
           "type": "string",
@@ -89,6 +102,76 @@
           "type": "string",
           "title": "存储类",
           "default": "local"
+        }
+      }
+    },
+    "env": {
+      "type": "object",
+      "title": "环境变量",
+      "properties": {
+        "env1": {
+          "type": "object",
+          "title": "Root密码",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "变量名称",
+              "default": "MYSQL_ROOT_PASSWORD"
+            },
+            "value": {
+              "type": "string",
+              "title": "变量值",
+              "default": "changeme"
+            }
+          }
+        },
+        "env2": {
+          "type": "object",
+          "title": "数据库名",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "变量名称",
+              "default": "MYSQL_DATABASE"
+            },
+            "value": {
+              "type": "string",
+              "title": "变量值",
+              "default": "mydb"
+            }
+          }
+        },
+        "env3": {
+          "type": "object",
+          "title": "用户名",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "变量名称",
+              "default": "MYSQL_USER"
+            },
+            "value": {
+              "type": "string",
+              "title": "变量值",
+              "default": "user"
+            }
+          }
+        },
+        "env4": {
+          "type": "object",
+          "title": "用户密码",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "变量名称",
+              "default": "MYSQL_PASSWORD"
+            },
+            "value": {
+              "type": "string",
+              "title": "变量值",
+              "default": "changeme"
+            }
+          }
         }
       }
     }
