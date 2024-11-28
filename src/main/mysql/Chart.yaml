@@ -1,9 +1,13 @@
-apiVersion: v2
+apiVersion: v2  
 name: mysql
-description: |
-  MySQL 是一个流行的开源关系型数据库管理系统。它由瑞典 MySQL AB 公司开发，目前属于 Oracle 公司。MySQL 以其可靠性、易用性和性能优势在 Web 应用程序中得到广泛应用。
 version: 1.6.8
 appVersion: "5.7.31"
+description: |
+  MySQL 是一个流行的开源关系型数据库管理系统。它以其卓越的性能、可靠性和易用性在 Web 应用程序中得到广泛应用。主要特点包括:
+  - 完整的数据库功能和事务支持
+  - 多种存储引擎选择
+  - 高性能的查询优化
+  - 强大的复制功能和高可用性
 home: https://www.mysql.com/
 sources:
   - https://github.com/kubernetes/charts
@@ -11,7 +15,7 @@ sources:
 maintainers:
   - name: "olemarkus"
     email: "o.with@sportradar.com"
-  - name: "viglesiasce"
+  - name: "viglesiasce" 
     email: "viglesias@google.com"
 annotations:
   "yunna.net/category": "Database"
@@ -20,4 +24,5 @@ keywords:
   - "Database"
   - "MySQL"
   - "SQL"
+  - "RDBMS"
 icon: "https://www.mysql.com/common/logos/powered-by-mysql-167x86.png"

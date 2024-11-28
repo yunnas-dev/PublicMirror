@@ -89,7 +89,16 @@ spec:
         {{- end }}
         {{- end }}
         resources:
+          {{- if .Values.resources }}
 {{ toYaml .Values.resources | indent 10 }}
+          {{- else }}
+          limits:
+            cpu: 1000m
+            memory: 1024Mi
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          {{- end }}
         env:
         {{- if .Values.mysqlAllowEmptyPassword }}
         - name: MYSQL_ALLOW_EMPTY_PASSWORD
