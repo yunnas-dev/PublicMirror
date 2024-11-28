@@ -50,11 +50,11 @@ spec:
             {{- end }}
           resources:
             requests:
-              memory: "{{ .Values.resources.requests.memory }}"
-              cpu: "{{ .Values.resources.requests.cpu }}"
+              memory: "{{ .Values.resources.requests.memory | default '512Mi' }}"
+              cpu: "{{ .Values.resources.requests.cpu | default '500m' }}"
             limits:
-              memory: "{{ .Values.resources.limits.memory }}"
-              cpu: "{{ .Values.resources.limits.cpu }}"
+              memory: "{{ .Values.resources.limits.memory | default '1024Mi' }}"
+              cpu: "{{ .Values.resources.limits.cpu | default '1000m' }}"
           volumeMounts:
             - name: mysql-data
               mountPath: /var/lib/mysql
