@@ -35,8 +35,8 @@ spec:
             - containerPort: 3306
               name: mysql
           env:
-            - name: MYSQL_ROOT_PASSWORD  
-              value: {{ .Values.mysql.rootPassword }}
+            - name: MYSQL_ROOT_PASSWORD
+              value: {{ .Values.mysql.rootPassword | quote }}
             {{- if kindIs "array" .Values.env }}
             {{- range .Values.env }}
             - name: "{{ .name }}"
