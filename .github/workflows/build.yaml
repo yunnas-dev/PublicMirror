@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   release:
@@ -11,24 +14,39 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Set up Helm
-        uses: azure/setup-helm@v1
+        uses: azure/setup-helm@v3
         with:
-          version: v3.5.2
+          version: v3.12.3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y curl git
+          pip install yamale yamllint helm-docs
+          curl -sSfL https://raw.githubusercontent.com/helm/chart-testing/master/install.sh | bash -s -- -b /usr/local/bin
+
+      - name: Run chart-testing (lint)
+        run: ct lint --config .github/ct.yaml --debug
 
       - name: Configure git
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Run Helm Best Practices Check
+        run: |
+          ./scripts/helm-best-practices.sh
 
       - name: Add Helm repositories
         run: |
@@ -38,14 +56,22 @@ jobs:
 
       - name: Update Helm chart dependencies
         run: |
-          for chart in $(find ./src/main -name Chart.yaml -exec dirname {} \;); do
-            helm dependency update $chart || true
+          for chart in $(find ./charts -name Chart.yaml); do
+            helm dependency update $(dirname $chart) || true
           done
 
+      - name: Run security scan
+        run: |
+          ./scripts/security-scan.sh
+
+      - name: Generate documentation
+        run: |
+          helm-docs
+          
       - name: Package all Helm charts
         run: |
-          for chart in $(find ./src/main -name Chart.yaml -exec dirname {} \;); do
-            helm package $chart || true
+          for chart in $(find ./charts -name Chart.yaml); do
+            helm package $(dirname $chart) || true
           done
 
       - name: Configure git credentials
