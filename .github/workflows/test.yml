@@ -11,14 +11,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Set up Helm
-        uses: azure/setup-helm@v1
+        uses: azure/setup-helm@v3
         with:
-          version: v3.5.2
+          version: v3.12.3
 
       - name: Install dependencies
         run: |
@@ -36,17 +37,31 @@ jobs:
           helm repo add bitnami https://charts.bitnami.com/bitnami
           helm repo update
 
+      - name: Debug - Find Charts
+        run: |
+          echo "Looking for Chart.yaml files..."
+          find . -name Chart.yaml
+
       - name: Update Helm chart dependencies
         run: |
-          for chart in $(find ./src/main -name Chart.yaml -exec dirname {} \;); do
-            helm dependency update $chart || true
+          for chart in $(find ./charts/stable -name Chart.yaml -exec dirname {} \;); do
+            echo "Updating dependencies for $chart"
+            helm dependency update "$chart" || echo "No dependencies to update for $chart"
           done
 
       - name: Package all Helm charts
         run: |
-          for chart in $(find ./src/main -name Chart.yaml -exec dirname {} \;); do
-            helm package $chart || true
+          echo "Creating .deploy directory..."
+          mkdir -p .deploy
+          
+          echo "Finding and packaging charts..."
+          for chart in $(find ./charts/stable -name Chart.yaml -exec dirname {} \;); do
+            echo "Packaging $chart..."
+            helm package "$chart" -d .deploy
           done
+          
+          echo "Listing .deploy directory contents:"
+          ls -la .deploy/
 
       - name: Configure git credentials
         env:
@@ -59,11 +74,21 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
+          echo "Cloning gh-pages branch..."
           git clone --branch gh-pages https://github.com/jianzhis/PublicMirror gh-pages
+          
+          echo "Creating test directory..."
           mkdir -p gh-pages/test
-          mv *.tgz gh-pages/test/
+          
+          echo "Listing .deploy directory contents:"
+          ls -la .deploy/
+          
+          echo "Moving .tgz files..."
+          mv .deploy/*.tgz gh-pages/test/
+          
           cd gh-pages
           helm repo index test --url https://jianzhis.github.io/PublicMirror/test
+          
           git add .
-          git commit -m "Publish new Helm chart versions to test"
+          git commit -m "Publish new Helm chart versions to test" || echo "No changes to commit"
           git push
