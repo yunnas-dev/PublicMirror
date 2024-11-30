@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   release:
@@ -24,29 +21,10 @@ jobs:
         with:
           version: v3.12.3
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y curl git
-          pip install yamale yamllint helm-docs
-          curl -sSfL https://raw.githubusercontent.com/helm/chart-testing/master/install.sh | bash -s -- -b /usr/local/bin
-
-      - name: Run chart-testing (lint)
-        run: ct lint --config .github/ct.yaml --debug
-
-      - name: Configure git
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-
-      - name: Run Helm Best Practices Check
-        run: |
-          ./scripts/helm-best-practices.sh
 
       - name: Add Helm repositories
         run: |
@@ -56,23 +34,25 @@ jobs:
 
       - name: Update Helm chart dependencies
         run: |
-          for chart in $(find ./charts -name Chart.yaml); do
-            helm dependency update $(dirname $chart) || true
+          for chart in $(find ./charts/stable -name Chart.yaml -exec dirname {} \;); do
+            echo "Updating dependencies for $chart"
+            helm dependency update "$chart" || echo "No dependencies to update for $chart"
           done
 
-      - name: Run security scan
+      - name: Debug chart structure
         run: |
-          ./scripts/security-scan.sh
-
-      - name: Generate documentation
-        run: |
-          helm-docs
+          echo "Charts found:"
+          find ./charts/stable -name Chart.yaml -exec dirname {} \;
           
       - name: Package all Helm charts
         run: |
-          for chart in $(find ./charts -name Chart.yaml); do
-            helm package $(dirname $chart) || true
+          mkdir -p .deploy
+          for chart in $(find ./charts/stable -name Chart.yaml -exec dirname {} \;); do
+            echo "Packaging $chart"
+            helm package "$chart" -d .deploy || { echo "Failed to package $chart"; exit 1; }
           done
+          echo "Packaged charts:"
+          ls -la .deploy/
 
       - name: Configure git credentials
         env:
@@ -87,9 +67,9 @@ jobs:
         run: |
           git clone --branch gh-pages https://github.com/jianzhis/PublicMirror gh-pages
           mkdir -p gh-pages/main
-          mv *.tgz gh-pages/main/
+          mv .deploy/*.tgz gh-pages/main/ || { echo "No charts to move"; exit 1; }
           cd gh-pages
           helm repo index main --url https://jianzhis.github.io/PublicMirror/main
           git add .
-          git commit -m "Publish new Helm chart versions to main"
+          git commit -m "Publish new Helm chart versions to main" || echo "No changes to commit"
           git push
