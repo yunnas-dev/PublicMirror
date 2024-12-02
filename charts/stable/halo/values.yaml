@@ -41,8 +41,11 @@ env:
     name: HALO_SECURITY_INITIALIZER_SUPERADMINPASSWORD
     value: "yunna@141"
   env6:
-    name: SPRING_R2DBC_URL
-    value: ""
+    name: SPRING_H2_CONSOLE_SETTINGS_WEB_ALLOW_OTHERS
+    value: "true"
   env7:
     name: TZ
     value: "Asia/Shanghai"
+  env8:
+    name: SPRING_R2DBC_PROPERTIES_PROTOCOL
+    value: "h2"
