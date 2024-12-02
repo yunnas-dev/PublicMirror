@@ -1,6 +1,7 @@
 {
     "$schema": "http://json-schema.org/schema#",
     "type": "object",
+    "required": ["image", "service", "persistence"],
     "properties": {
       "replicaCount": {
         "type": "integer",
@@ -12,6 +13,7 @@
       },
       "image": {
         "type": "object",
+        "required": ["imageRegistry", "repository"],
         "title": "镜像配置",
         "properties": {
           "imageRegistry": {
@@ -39,6 +41,7 @@
       },
       "service": {
         "type": "object",
+        "required": ["type", "port"],
         "title": "服务配置",
         "properties": {
           "type": {
@@ -51,13 +54,6 @@
             "type": "integer",
             "title": "服务端口",
             "default": 25565
-          },
-          "nodePort": {
-            "type": "integer",
-            "title": "NodePort端口",
-            "minimum": 30000,
-            "maximum": 32767,
-            "default": 32025
           }
         }
       },
@@ -105,6 +101,7 @@
       },
       "persistence": {
         "type": "object",
+        "required": ["enabled", "accessMode", "size", "storageClass"],
         "title": "持久化配置",
         "properties": {
           "enabled": {
@@ -134,9 +131,11 @@
       "env": {
         "type": "object",
         "title": "环境变量",
+        "required": ["env1", "env2", "env3", "env4"],
         "properties": {
           "env1": {
             "type": "object",
+            "required": ["name", "value"],
             "title": "环境变量1 - EULA",
             "properties": {
               "name": {
@@ -153,6 +152,7 @@
           },
           "env2": {
             "type": "object",
+            "required": ["name", "value"],
             "title": "环境变量2 - 服务器类型",
             "properties": {
               "name": {
@@ -163,12 +163,14 @@
               "value": {
                 "type": "string",
                 "title": "变量值",
+                "enum": ["VANILLA", "PAPER", "FORGE", "FABRIC"],
                 "default": "PAPER"
               }
             }
           },
           "env3": {
             "type": "object",
+            "required": ["name", "value"],
             "title": "环境变量3 - 内存配置",
             "properties": {
               "name": {
@@ -179,12 +181,14 @@
               "value": {
                 "type": "string",
                 "title": "变量值",
+                "pattern": "^[0-9]+(M|G)$",
                 "default": "1G"
               }
             }
           },
           "env4": {
             "type": "object",
+            "required": ["name", "value"],
             "title": "环境变量4 - 在线模式",
             "properties": {
               "name": {
@@ -195,6 +199,7 @@
               "value": {
                 "type": "string",
                 "title": "变量值",
+                "enum": ["TRUE", "FALSE"],
                 "default": "FALSE"
               }
             }

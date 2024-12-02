@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   imageRegistry: "registry-2.yunna.net"
   repository: itzg/minecraft-server
-  tag: ""  # 默认为空,表示不指定标签
+  tag: "latest"
   pullPolicy: IfNotPresent
 
 service:
