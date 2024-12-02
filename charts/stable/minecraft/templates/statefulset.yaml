@@ -15,10 +15,6 @@ spec:
       labels:
         {{- include "minecraft.selectorLabels" . | nindent 8 }}
     spec:
-      securityContext:
-        fsGroup: 1000
-        runAsUser: 1000
-        runAsGroup: 1000
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -36,11 +32,9 @@ spec:
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- if .Values.persistence.enabled }}
           volumeMounts:
             - name: data
               mountPath: /data
-          {{- end }}
           livenessProbe:
             tcpSocket:
               port: minecraft
@@ -57,14 +51,7 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 30
-          lifecycle:
-            preStop:
-              exec:
-                command: ["/usr/local/bin/stop-server.sh"]
-      terminationGracePeriodSeconds: 60
-      {{- if .Values.persistence.enabled }}
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: {{ include "minecraft.fullname" . }}-pvc
-      {{- end }}
