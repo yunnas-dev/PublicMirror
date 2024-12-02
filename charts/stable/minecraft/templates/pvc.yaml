@@ -1,3 +1,4 @@
+{{- if .Values.persistence.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -6,8 +7,9 @@ metadata:
     {{- include "minecraft.labels" . | nindent 4 }}
 spec:
   accessModes:
-    - {{ .Values.persistence.accessMode | quote }}  # 确保这里有正确的值
+    - {{ .Values.persistence.accessMode | quote }}
   resources:
     requests:
-      storage: {{ .Values.persistence.size | quote }}  # 确保这里有正确的值
-  storageClassName: {{ .Values.persistence.storageClass | quote }}  # 确保这里有正确的值
+      storage: {{ .Values.persistence.size | quote }}
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
+{{- end }}
