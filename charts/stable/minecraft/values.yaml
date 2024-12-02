@@ -7,9 +7,8 @@ image:
   pullPolicy: IfNotPresent
 
 service:
-  type: NodePort
+  type: ClusterIP
   port: 25565
-  nodePort: 32025
 
 resources:
   requests:
@@ -21,16 +20,20 @@ resources:
 
 persistence:
   enabled: true
-  accessMode: ReadWriteOnce  # 或者其他有效的访问模式
+  accessMode: ReadWriteOnce
   size: 10Gi
   storageClass: "local"
 
 env:
-  - name: EULA
-    value: "TRUE"  # 必须设置为 "TRUE"
-  - name: TYPE
-    value: "PAPER"  # 服务器类型
-  - name: MEMORY
-    value: "1G"  # 分配给服务器的内存
-  - name: ONLINE_MODE
-    value: "FALSE"  # 在线模式选择
+  env1:
+    name: EULA
+    value: "TRUE"
+  env2:
+    name: TYPE
+    value: "PAPER"
+  env3:
+    name: MEMORY
+    value: "1G"
+  env4:
+    name: ONLINE_MODE
+    value: "FALSE"

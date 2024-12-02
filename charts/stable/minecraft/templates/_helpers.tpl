@@ -1,25 +1,25 @@
-{{/*
-Generate the fullname of the release, limiting to 63 characters
+{{/* 
+Generate the full name of the release, limiting to 63 characters 
 */}}
 {{- define "minecraft.fullname" -}}
 {{- .Release.Name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{/*
-Generate the name of the chart
+{{/* 
+Generate the name of the chart 
 */}}
 {{- define "minecraft.name" -}}
-minecraft
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{/*
-Generate common labels for the chart
+{{/* 
+Generate common labels
 */}}
 {{- define "minecraft.labels" -}}
 app.kubernetes.io/name: {{ include "minecraft.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name | quote }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | quote }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/version: {{ .Chart.AppVersion }}
+helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
 {{- end -}}
 
 {{/*
@@ -28,4 +28,4 @@ Selector labels
 {{- define "minecraft.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "minecraft.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
+{{- end -}}

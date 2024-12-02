@@ -11,8 +11,5 @@ spec:
       targetPort: {{ .Values.service.targetPort | default 25565 }}
       protocol: TCP
       name: minecraft
-      {{- if and (eq .Values.service.type "NodePort") .Values.service.nodePort }}
-      nodePort: {{ .Values.service.nodePort }}
-      {{- end }}
   selector:
     {{- include "minecraft.selectorLabels" . | nindent 4 }}
