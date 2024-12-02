@@ -2,13 +2,13 @@ replicaCount: 1
 
 image:
   imageRegistry: "registry-2.yunna.net"
-  repository: lanol/filecodebox
-  tag: "beta"
+  repository: filebrowser/filebrowser
+  tag: "v2.31.2"
   pullPolicy: IfNotPresent
 
 service:
   type: ClusterIP
-  port: 12345
+  port: 80
   externalPort: 80
 
 resources:
@@ -21,7 +21,33 @@ resources:
 
 persistence:
   enabled: true
-  path: /app/data
-  size: 5Gi
+  storageClass: "local"
+  accessMode: ReadWriteOnce
+  srvSize: 10Gi
+  configSize: 1Gi
 
-env: {}
+env:
+  env1: 
+    name: FB_PORT
+    value: "80"
+  env2:
+    name: FB_ROOT
+    value: "/srv"
+  env3:
+    name: FB_DATABASE
+    value: "/var/config/database.db"
+  env4:
+    name: FB_LOG
+    value: "stdout"
+
+config:
+  filebrowserJson: |
+    {
+      "port": 80,
+      "baseURL": "",
+      "address": "",
+      "log": "stdout",
+      "database": "/var/config/database.db",
+      "root": "/srv"
+    }
+  databaseDb: ""

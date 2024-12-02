@@ -39,7 +39,7 @@ env:
     value: "admin"
   env5:
     name: HALO_SECURITY_INITIALIZER_SUPERADMINPASSWORD
-    value: "P@88w0rd"
+    value: "yunna@141"
   env6:
     name: SPRING_R2DBC_URL
     value: ""
