@@ -3,40 +3,50 @@ kind: Deployment
 metadata:
   name: {{ include "halo.fullname" . }}
   labels:
-    {{ include "halo.labels" . | nindent 4 }}
+    {{- include "halo.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "halo.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- include "halo.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{ include "halo.labels" . | nindent 8 }}
+        {{- include "halo.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: halo
+        - name: {{ .Chart.Name }}
           image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 8090
+            - name: http
+              containerPort: 8090
+              protocol: TCP
           env:
-            {{- range .Values.env }}
-            - name: "{{ .name }}"
-              value: "{{ .value }}"
+            {{- if kindIs "map" .Values.env }}
+            {{- range $key, $value := .Values.env }}
+            - name: "{{ $value.name }}"
+              value: "{{ $value.value }}"
+            {{- end }}
             {{- end }}
           resources:
-            limits:
-              memory: "{{ .Values.resources.limits.memory }}"
-              cpu: "{{ .Values.resources.limits.cpu }}"
-            requests:
-              memory: "{{ .Values.resources.requests.memory }}"
-              cpu: "{{ .Values.resources.requests.cpu }}"
+            {{- toYaml .Values.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness  
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 5
           volumeMounts:
-            - name: halo-data
+            - name: data
               mountPath: /root/.halo2
       volumes:
-        - name: halo-data
+        - name: data
           persistentVolumeClaim:
             claimName: {{ include "halo.fullname" . }}-pvc
