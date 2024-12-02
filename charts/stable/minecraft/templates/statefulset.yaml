@@ -1,4 +1,3 @@
-{{- if .Values.persistence.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -22,7 +21,7 @@ spec:
         runAsGroup: 1000
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default "latest" }}"
+          image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: minecraft
@@ -37,9 +36,11 @@ spec:
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- if .Values.persistence.enabled }}
           volumeMounts:
             - name: data
               mountPath: /data
+          {{- end }}
           livenessProbe:
             tcpSocket:
               port: minecraft
@@ -61,8 +62,9 @@ spec:
               exec:
                 command: ["/usr/local/bin/stop-server.sh"]
       terminationGracePeriodSeconds: 60
+      {{- if .Values.persistence.enabled }}
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: {{ include "minecraft.fullname" . }}-pvc
-{{- end }}
+      {{- end }}
