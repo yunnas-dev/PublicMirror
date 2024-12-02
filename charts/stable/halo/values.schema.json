@@ -5,7 +5,7 @@
     "replicaCount": {
       "type": "integer",
       "title": "副本数量",
-      "description": "部署的副本数量",
+      "description": "部署的副本数量", 
       "minimum": 1,
       "default": 1
     },
@@ -40,10 +40,10 @@
     "service": {
       "type": "object",
       "required": ["type", "port"],
-      "title": "服务配置", 
+      "title": "服务配置",
       "properties": {
         "type": {
-          "type": "string",
+          "type": "string", 
           "title": "服务类型",
           "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
           "default": "ClusterIP"
@@ -72,7 +72,7 @@
               "default": "1000m"
             },
             "memory": {
-              "type": "string",
+              "type": "string", 
               "title": "内存限制",
               "pattern": "^[0-9]+(Mi|Gi)$",
               "default": "1024Mi"
@@ -87,11 +87,11 @@
               "type": "string",
               "title": "CPU请求",
               "pattern": "^[0-9]+m?$",
-              "default": "500m"
+              "default": "500m" 
             },
             "memory": {
               "type": "string",
-              "title": "内存请求",
+              "title": "内存请求", 
               "pattern": "^[0-9]+(Mi|Gi)$",
               "default": "512Mi"
             }
@@ -131,7 +131,7 @@
     "env": {
       "type": "object",
       "title": "环境变量",
-      "required": ["env1", "env2", "env3", "env4", "env5", "env6", "env7", "env8"],
+      "required": ["env1", "env2", "env3", "env4", "env5", "env7"],
       "properties": {
         "env1": {
           "type": "object",
@@ -218,23 +218,6 @@
             }
           }
         },
-        "env6": {
-          "type": "object",
-          "required": ["name", "value"],
-          "title": "环境变量6 - H2控制台设置",
-          "properties": {
-            "name": {
-              "type": "string",
-              "title": "变量名称",
-              "default": "SPRING_H2_CONSOLE_SETTINGS_WEB_ALLOW_OTHERS"
-            },
-            "value": {
-              "type": "string",
-              "title": "变量值",
-              "default": "true"
-            }
-          }
-        },
         "env7": {
           "type": "object",
           "required": ["name", "value"],
@@ -249,23 +232,6 @@
               "type": "string",
               "title": "变量值",
               "default": "Asia/Shanghai"
-            }
-          }
-        },
-        "env8": {
-          "type": "object",
-          "required": ["name", "value"],
-          "title": "环境变量8 - 数据库协议",
-          "properties": {
-            "name": {
-              "type": "string",
-              "title": "变量名称",
-              "default": "SPRING_R2DBC_PROPERTIES_PROTOCOL"
-            },
-            "value": {
-              "type": "string",
-              "title": "变量值",
-              "default": "h2"
             }
           }
         }
