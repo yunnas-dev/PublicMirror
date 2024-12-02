@@ -30,10 +30,16 @@ env:
     value: "TRUE"
   env2:
     name: TYPE
-    value: "PAPER"
+    value: "VANILLA"
   env3:
     name: MEMORY
     value: "1G"
   env4:
     name: ONLINE_MODE
     value: "FALSE"
+  env5:
+    name: VERSION
+    value: "1.20.2"
+  env6:
+    name: PROXY
+    value: ""

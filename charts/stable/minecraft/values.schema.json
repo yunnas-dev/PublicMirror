@@ -28,7 +28,7 @@
         },
         "tag": {
           "type": "string",
-          "title": "镜像标签",
+          "title": "镜像标签", 
           "default": "latest"
         },
         "pullPolicy": {
@@ -129,7 +129,7 @@
     "env": {
       "type": "object",
       "title": "环境变量",
-      "required": ["env1", "env2", "env3", "env4"],
+      "required": ["env1", "env2", "env3", "env4", "env5", "env6"],
       "properties": {
         "env1": {
           "type": "object",
@@ -162,7 +162,7 @@
               "type": "string",
               "title": "变量值",
               "enum": ["VANILLA", "PAPER", "FORGE", "FABRIC"],
-              "default": "PAPER"
+              "default": "VANILLA"
             }
           }
         },
@@ -199,6 +199,40 @@
               "title": "变量值",
               "enum": ["TRUE", "FALSE"],
               "default": "FALSE"
+            }
+          }
+        },
+        "env5": {
+          "type": "object",
+          "required": ["name", "value"],
+          "title": "环境变量5 - 游戏版本",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "变量名称",
+              "default": "VERSION"
+            },
+            "value": {
+              "type": "string",
+              "title": "变量值",
+              "default": "1.20.2"
+            }
+          }
+        },
+        "env6": {
+          "type": "object",
+          "required": ["name", "value"],
+          "title": "环境变量6 - 代理设置",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "变量名称",
+              "default": "PROXY"
+            },
+            "value": {
+              "type": "string",
+              "title": "变量值",
+              "default": "http://127.0.0.1:7890"
             }
           }
         }
