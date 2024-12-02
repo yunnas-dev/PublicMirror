@@ -23,5 +23,16 @@ persistence:
   enabled: true
   path: /ql/data
   size: 5Gi
+  storageClass: "local"
+  accessMode: ReadWriteOnce
 
-env: {}
+env:
+  env1:
+    name: TZ
+    value: "Asia/Shanghai"
+  env2:
+    name: ENABLE_HANGUP
+    value: "true"
+  env3:
+    name: ENABLE_WEB_PANEL
+    value: "true"

@@ -3,11 +3,13 @@ kind: Service
 metadata:
   name: {{ include "qinglong.fullname" . }}
   labels:
-    {{ include "qinglong.labels" . | nindent 4 }}
+    {{- include "qinglong.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.externalPort }}
       targetPort: {{ .Values.service.port }}
+      protocol: TCP
+      name: http
   selector:
-    app.kubernetes.io/name: {{ include "qinglong.name" . }}
+    {{- include "qinglong.selectorLabels" . | nindent 4 }}
