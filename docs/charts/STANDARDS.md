@@ -1,203 +1,341 @@
 # 云纳 Helm Chart 开发规范 v1.0
 
-## 目录结构规范
-
-```
+## 目录结构
+```bash
 charts/stable/[chart-name]/
-├── Chart.yaml          # Chart 基本信息
-├── README.md          # 使用文档
-├── values.schema.json  # 值验证模式
-├── values.yaml        # 默认配置值
-├── NOTES.txt          # 安装后提示信息
-└── templates/         # 模板目录
-    ├── deployment.yaml     # 必需，应用部署配置
-    ├── service.yaml       # 必需，服务配置
-    ├── pvc.yaml          # 可选，持久化配置
-    ├── configmap.yaml    # 可选，配置项
-    ├── secret.yaml       # 可选，敏感信息
-    ├── ingress.yaml      # 可选，入口配置
-    └── _helpers.tpl      # 必需，通用函数
+├── Chart.yaml            # Chart 基本信息
+├── README.md            # 使用文档
+├── values.schema.json   # 参数校验
+├── values.yaml          # 默认配置
+└── templates/           # 模板文件
+    ├── deployment.yaml      # 应用部署配置
+    ├── service.yaml         # 服务配置
+    ├── pvc.yaml            # 可选：持久化存储
+    └── _helpers.tpl        # 通用函数
 ```
 
 ## Chart.yaml 规范
 
+必需字段和格式：
 ```yaml
-apiVersion: v2                      # 必需，使用v2版本
-name: [chart-name]                  # 必需，小写字母，不含空格
-description: |                      # 必需，详细描述，支持多行
-  [应用描述，建议中文]
-version: 0.1.0                      # 必需，遵循语义化版本
-appVersion: "1.0"                   # 必需，应用版本
-home: https://example.com           # 必需，应用主页
-sources:                           # 必需，源码仓库
-  - https://github.com/example/repo
-maintainers:                       # 必需，维护者信息
-  - name: "云纳平台"
-    email: "support@yunna.net"
-annotations:                       # 必需，云纳平台分类
-  yunna.net/category: "Database"   # 英文分类
-  yunna.net/category-zh: "数据库"   # 中文分类
-  yunna.net/difficulty: "beginner" # 使用难度：beginner/intermediate/advanced
-keywords:                         # 必需，搜索关键词
-  - database
-  - mysql
+apiVersion: v2
+name: [name]                    # 应用名称，如 uptime-kuma
+description: |                  # 必须用中文描述
+  [应用介绍，需要详细说明功能和用途]
+version: 0.1.0                 # Chart 版本
+appVersion: "latest"           # 应用版本
+home: https://project.com      # 项目主页
+sources:                       # 源码仓库
+  - https://github.com/xxx/xxx
+maintainers:                   # 维护者
+  - name: "作者"
+    email: "邮箱"
+annotations:                   # 云纳分类(必填)
+  "yunna.net/category": "类别"  # 英文类别
+  "yunna.net/category-zh": "类别" # 中文类别
+keywords:                      # 搜索关键词
+  - keyword1
+  - keyword2
+icon: "图标URL"                # 可选：应用图标
 ```
 
 ## values.yaml 规范
 
-1. 基础配置：
+### 基础配置
 ```yaml
-# 全局配置
-global:
-  imageRegistry: "registry-2.yunna.net"  # 镜像仓库地址
-  storageClass: "local"                  # 存储类
+replicaCount: 1               # 副本数量
 
-# 基础配置
-replicaCount: 1                          # 副本数
-
-# 镜像配置
 image:
-  repository: example/app                # 镜像名称
-  tag: "1.0"                            # 镜像标签
-  pullPolicy: IfNotPresent              # 拉取策略
+  imageRegistry: "registry-2.yunna.net"  # 镜像仓库
+  repository: vendor/app      # 镜像名称
+  tag: "latest"              # 镜像标签
+  pullPolicy: IfNotPresent   # 拉取策略
+
+service:
+  type: ClusterIP            # 服务类型
+  port: 3001                 # 服务端口
 ```
 
-2. 资源配置：
+### 资源配置
 ```yaml
-# 资源限制
-resources:
+resources:                    # 资源限制和请求
   limits:
-    cpu: "1000m"                        # CPU限制
-    memory: "1024Mi"                    # 内存限制
+    cpu: 1000m
+    memory: 1024Mi
   requests:
-    cpu: "500m"                         # CPU请求
-    memory: "512Mi"                     # 内存请求
+    cpu: 500m
+    memory: 512Mi
 
-# 持久化存储
-persistence:
-  enabled: true                         # 是否启用
-  size: "10Gi"                         # 存储大小
-  storageClass: "local"                # 存储类
+persistence:                  # 持久化配置
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  storageClass: "local"      # 存储类
+
+env:                         # 环境变量
+  env1:
+    name: ENV_NAME
+    value: env_value
 ```
 
 ## values.schema.json 规范
 
-1. 基本结构：
 ```json
 {
   "$schema": "http://json-schema.org/schema#",
   "type": "object",
   "properties": {
-    "参数名": {
-      "type": "类型",
-      "title": "中文标题",
-      "description": "参数描述",
-      "default": "默认值"
+    "replicaCount": {
+      "type": "integer",
+      "title": "副本数量",
+      "description": "要部署的副本数量",
+      "minimum": 1,
+      "default": 1
+    },
+    "resources": {
+      "type": "object",
+      "title": "资源需求",
+      "properties": {
+        "limits": {
+          "type": "object",
+          "title": "资源限制",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "title": "CPU限制",
+              "pattern": "^[0-9]+m?$",
+              "default": "1000m"
+            },
+            "memory": {
+              "type": "string",
+              "title": "内存限制",
+              "pattern": "^[0-9]+(Mi|Gi)$",
+              "default": "1024Mi"
+            }
+          }
+        },
+        "requests": {
+          "type": "object",
+          "title": "资源请求",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "title": "CPU请求",
+              "pattern": "^[0-9]+m?$",
+              "default": "500m"
+            },
+            "memory": {
+              "type": "string",
+              "title": "内存请求",
+              "pattern": "^[0-9]+(Mi|Gi)$",
+              "default": "512Mi"
+            }
+          }
+        }
+      }
+    },
+    "persistence": {
+      "type": "object",
+      "title": "持久化配置",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "启用持久化",
+          "default": true
+        },
+        "accessMode": {
+          "type": "string",
+          "title": "访问模式",
+          "enum": ["ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany"],
+          "default": "ReadWriteOnce"
+        },
+        "size": {
+          "type": "string",
+          "title": "存储大小",
+          "pattern": "^[0-9]+(Mi|Gi)$",
+          "default": "1Gi"
+        },
+        "storageClass": {
+          "type": "string",
+          "title": "存储类",
+          "default": "local"
+        }
+      }
+    },
+    "env": {
+      "type": "object",
+      "title": "环境变量",
+      "properties": {
+        "env1": {
+          "type": "object",
+          "title": "环境变量1",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "变量名称",
+              "default": "NODE_ENV"
+            },
+            "value": {
+              "type": "string",
+              "title": "变量值",
+              "default": "production"
+            }
+          }
+        },
+        "env2": {
+          "type": "object",
+          "title": "环境变量2",
+          "properties": {
+            "name": {
+              "type": "string",
+              "title": "变量名称",
+              "default": "DEBUG"
+            },
+            "value": {
+              "type": "string",
+              "title": "变量值",
+              "default": "false"
+            }
+          }
+        }
+      }
     }
   }
 }
 ```
 
-2. 必需字段：
-- title：中文参数名称
-- type：参数类型
-- description：参数说明（可选）
-- default：默认值
-- required：必填字段列表
-
 ## 模板文件规范
 
-1. deployment.yaml：
-- 必须包含资源限制
-- 必须设置健康检查
-- 必须使用标准标签
-- 必须处理环境变量
+### deployment.yaml
+必需配置：
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "[name].fullname" . }}
+  labels:
+    {{- include "[name].labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "[name].selectorLabels" . | nindent 6 }}
+  template:
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:            # 如果有持久化需求必须配置
+            - name: data
+              mountPath: /path
+```
 
-2. service.yaml：
-- 必须设置合适的服务类型
-- 端口命名需要有意义
-- 必须使用标准标签
+### service.yaml
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "[name].fullname" . }}
+  labels:
+    {{- include "[name].labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: container-port
+```
 
-3. _helpers.tpl：
-- 必须包含name、fullname函数
-- 必须包含标准标签定义
-- 函数命名需要规范
+### _helpers.tpl
+必需的函数：
+```yaml
+{{- define "[name].fullname" -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "[name].labels" -}}
+app.kubernetes.io/name: {{ include "[name].name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/version: {{ .Chart.AppVersion }}
+helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+{{- end -}}
+
+{{- define "[name].selectorLabels" -}}
+app.kubernetes.io/name: {{ include "[name].name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end -}}
+```
 
 ## README.md 规范
 
-1. 必需章节：
-- 简介：应用描述
-- 前置条件：运行要求
-- 安装说明：部署步骤
-- 参数说明：配置详解
-- 使用说明：基本用法
-- 注意事项：特殊说明
+必需的章节和格式：
 
-2. 内容要求：
-- 使用中文编写
-- 示例明确具体
-- 提供常见问题解答
+```markdown
+# 应用名称
 
-## NOTES.txt 规范
+## 介绍
+[详细的应用介绍]
 
-1. 必需内容：
-- 部署成功提示
-- 访问方式说明
-- 后续步骤指引
-- 注意事项提醒
+## 主要功能
+- [功能点列表]
 
-## 最佳实践
+## 配置参数说明
+| 参数名称 | 描述 | 类型 | 默认值 |
+|---------|-----|------|--------|
+| `参数路径` | 参数说明 | 参数类型 | 默认值 |
 
-1. 版本控制：
+## 部署步骤
+[部署说明]
+
+## 使用说明
+[使用方法]
+
+## 故障排除
+[常见问题和解决方案]
+```
+
+## 测试和检查
+
+1. 本地测试要求
+- 确保能正常部署
+- 检查资源设置合理性
+- 验证基本功能正常
+
+2. 提交前检查
+- Chart.yaml 必填项完整
+- values.schema.json 校验正确
+- README.md 包含所有必需章节
+- 所有模板文件语法正确
+
+3. 文档要求
+- 所有文档使用中文
+- 配置参数有详细说明
+- 包含基本的故障排除指南
+
+## 命名规范
+
+1. 目录和文件
+- 目录名使用小写字母
+- 文件名使用小写字母和横线
+
+2. 变量命名
+- 使用驼峰命名法
+- 避免使用特殊字符
+- 保持命名一致性
+
+## 提交规范
+
+1. 版本号格式
 - 遵循语义化版本
-- 记录版本变更
-- 保持向后兼容
+- 主版本号.次版本号.修订号
 
-2. 安全性：
-- 默认配置安全
-- 敏感信息加密
-- 最小权限原则
+2. 提交信息
+- 清晰描述变更内容
+- 标注版本号变更
+- 说明不兼容变更
 
-3. 可维护性：
-- 代码注释完整
-- 配置项文档化
-- 错误处理完善
-
-4. 资源管理：
-- 合理设置限制
-- 优化资源使用
-- 提供伸缩建议
-
-## 提交流程
-
-1. 开发阶段：
-- 创建功能分支
-- 完成代码开发
-- 本地测试验证
-
-2. 测试阶段：
-- 提交测试分支
-- 自动化测试
-- 人工复核
-
-3. 发布阶段：
-- 合并主分支
-- 版本标签
-- 更新文档
-
-## 审核标准
-
-1. 基础要求：
-- 文件结构完整
-- 命名规范统一
-- 版本号正确
-
-2. 功能要求：
-- 应用可正常部署
-- 配置项可正常使用
-- 文档完整准确
-
-3. 质量要求：
-- 代码规范整洁
-- 错误处理完善
-- 性能表现良好
+3. 更新内容
+- 更新 Chart.yaml 版本
+- 补充 README 变更说明
+- 确保文档同步更新
