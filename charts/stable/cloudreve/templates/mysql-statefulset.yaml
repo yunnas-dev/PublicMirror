@@ -33,15 +33,14 @@ spec:
             - name: mysql
               containerPort: 3306
           volumeMounts:
-            - name: data
+            - name: mysql-data
               mountPath: /var/lib/mysql
   volumeClaimTemplates:
     - metadata:
-        name: data
+        name: mysql-data
       spec:
-        accessModes:
-          - ReadWriteOnce
-        storageClassName: {{ .Values.persistence.storageClass }}
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: "local"  # 明确指定使用 local
         resources:
           requests:
             storage: {{ .Values.mysql.persistence.size }}

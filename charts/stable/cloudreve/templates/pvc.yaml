@@ -8,7 +8,7 @@ spec:
   resources:
     requests:
       storage: {{ .Values.mysql.persistence.size }}
-  storageClassName: {{ .Values.persistence.storageClass }}
+  storageClassName: "local"  # 明确指定使用 local
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
