@@ -30,7 +30,7 @@ env:
     value: "TRUE"
   env2:
     name: TYPE
-    value: "VANILLA"
+    value: "PAPER"
   env3:
     name: MEMORY
     value: "1G"
