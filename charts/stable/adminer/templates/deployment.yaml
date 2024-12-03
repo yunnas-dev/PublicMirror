@@ -3,28 +3,43 @@ kind: Deployment
 metadata:
   name: {{ include "adminer.fullname" . }}
   labels:
-    {{ include "adminer.labels" . | nindent 4 }}
+    {{- include "adminer.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "adminer.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- include "adminer.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{ include "adminer.labels" . | nindent 8 }}
+        {{- include "adminer.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: adminer
+        - name: {{ .Chart.Name }}
           image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.service.port }}
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          env:
+            {{- if kindIs "map" .Values.env }}
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $value.name }}
+              value: {{ $value.value | quote }}
+            {{- end }}
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 5
           resources:
-            limits:
-              memory: "{{ .Values.resources.limits.memory }}"
-              cpu: "{{ .Values.resources.limits.cpu }}"
-            requests:
-              memory: "{{ .Values.resources.requests.memory }}"
-              cpu: "{{ .Values.resources.requests.cpu }}"
+            {{- toYaml .Values.resources | nindent 12 }}

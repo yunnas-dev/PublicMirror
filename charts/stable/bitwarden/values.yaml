@@ -24,4 +24,10 @@ persistence:
   path: /data
   size: 5Gi
 
-env: {}
+env:
+  env1:
+    name: ROCKET_PORT
+    value: "80"
+  env2:
+    name: ROCKET_WORKERS
+    value: "10"

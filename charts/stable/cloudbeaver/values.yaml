@@ -24,4 +24,10 @@ persistence:
   path: /opt/cloudbeaver/workspace
   size: 5Gi
 
-env: {}
+env:
+  env1:
+    name: CB_ADMIN_PASSWORD
+    value: ""
+  env2:
+    name: CB_SERVER_NAME
+    value: "CloudBeaver"
