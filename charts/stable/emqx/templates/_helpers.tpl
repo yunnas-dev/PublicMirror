@@ -1,24 +1,32 @@
+{{/* vim: set filetype=mustache: */}}
 {{/*
-Generate the fullname of the release, limiting to 63 characters
-*/}}
-{{- define "emqx.fullname" -}}
-{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Generate the name of the chart
+Expand the name of the chart.
 */}}
 {{- define "emqx.name" -}}
-emqx
-{{- end -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
 
 {{/*
-Generate common labels for the chart
+Create a default fully qualified app name.
+*/}}
+{{- define "emqx.fullname" -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Common labels
 */}}
 {{- define "emqx.labels" -}}
-app.kubernetes.io/name: {{ include "emqx.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name | quote }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | quote }}
-createdBy: "Apps"
-{{- end -}}
+{{ include "emqx.selectorLabels" . }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "emqx.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "emqx.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

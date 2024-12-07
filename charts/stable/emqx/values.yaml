@@ -32,13 +32,14 @@ service:
 
 resources:
   limits:
-    cpu: 500m
-    memory: 1Gi
+    cpu: "1000m"
+    memory: "2Gi"
   requests:
-    cpu: 250m
-    memory: 512Mi
+    cpu: "500m"
+    memory: "1Gi"
 
 persistence:
+  storageClass: "local"
   data:
     enabled: true
     path: /opt/emqx/data
@@ -49,4 +50,21 @@ persistence:
     size: 5Gi
 
 env:
-  EMQX_NODE_NAME: "emqx@localhost"
+  env1:
+    name: "EMQX_NODE_NAME"
+    value: "emqx@$(POD_IP)"
+  env2:
+    name: "EMQX_CLUSTER__DISCOVERY_STRATEGY"
+    value: "dns"
+  env3:
+    name: "EMQX_CLUSTER__DNS__NAME"
+    value: "emqx-headless"
+  env4:
+    name: "EMQX_CLUSTER__DNS__RECORD_TYPE"
+    value: "A"
+  env5:
+    name: "TZ"
+    value: "Asia/Shanghai"
+  env6:
+    name: "EMQX_ALLOW_ANONYMOUS"
+    value: "false"
