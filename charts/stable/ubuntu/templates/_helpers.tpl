@@ -16,10 +16,10 @@ ubuntu
 Generate common labels 
 */}}
 {{- define "ubuntu.labels" -}}
-app.kubernetes.io/name: {{ include "ubuntu.name" . | quote }}
-app.kubernetes.io/instance: {{ .Release.Name | quote }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | quote }}
+app.kubernetes.io/name: {{ include "ubuntu.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | replace "\"" "" }}
+helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 }}
 {{- end -}}
 
 {{/*
