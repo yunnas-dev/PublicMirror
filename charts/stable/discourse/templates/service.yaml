@@ -3,11 +3,11 @@ kind: Service
 metadata:
   name: {{ include "discourse.fullname" . }}
   labels:
-    {{ include "discourse.labels" . | nindent 4 }}
+    {{- include "discourse.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: 80
+      targetPort: 3000
   selector:
-    app: {{ include "discourse.fullname" . }}
+    {{- include "discourse.selectorLabels" . | nindent 4 }}
