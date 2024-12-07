@@ -21,12 +21,22 @@ resources:
 
 persistence:
   enabled: true
+  storageClass: "local"
   srvPath: /srv
   srvSize: 10Gi
   configPath: /var/config
   configSize: 1Gi
 
-env: {}
+env:
+  env1:
+    name: "FB_PORT"
+    value: "80"
+  env2:
+    name: "FB_ROOT"
+    value: "/srv"
+  env3:
+    name: "FB_DATABASE"
+    value: "/var/config/database.db"
 
 config:
   filebrowserJson: |
@@ -35,7 +45,7 @@ config:
       "baseURL": "",
       "address": "",
       "log": "stdout",
-      "database": "/database.db",
+      "database": "/var/config/database.db",
       "root": "/srv"
     }
-  databaseDb: ""  # 这个是一个空文件，用作占位符。
+  databaseDb: ""
