@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "uptime-kuma.fullname" . }}-pvc
+  name: {{ include "onlyoffice-documentserver.fullname" . }}-pvc
   labels:
-    {{- include "uptime-kuma.labels" . | nindent 4 }}
+    {{- include "onlyoffice-documentserver.labels" . | nindent 4 }}
 spec:
   accessModes:
     - {{ .Values.persistence.accessMode }}
