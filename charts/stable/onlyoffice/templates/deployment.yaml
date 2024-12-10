@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "onlyoffice-documentserver.fullname" . }}
+  name: {{ include "onlyoffice.fullname" . }}
   labels:
-    {{- include "onlyoffice-documentserver.labels" . | nindent 4 }}
+    {{- include "onlyoffice.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "onlyoffice-documentserver.selectorLabels" . | nindent 6 }}
+      {{- include "onlyoffice.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "onlyoffice-documentserver.selectorLabels" . | nindent 8 }}
+        {{- include "onlyoffice.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: {{ .Chart.Name }}
@@ -31,4 +31,4 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: {{ include "onlyoffice-documentserver.fullname" . }}-pvc
+            claimName: {{ include "onlyoffice.fullname" . }}-pvc
