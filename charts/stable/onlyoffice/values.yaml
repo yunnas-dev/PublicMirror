@@ -22,18 +22,18 @@ persistence:
 
 # 环境变量
 env:
-  NODE_ENV:
+  env1:
     name: NODE_ENV
-    value: "production" # 默认运行环境为 production
-  SECRET_KEY:
+    value: "production"
+  env2:
     name: SECRET_KEY
-    value: "请设置你的密码" # 必须设置的安全密钥
-  JWT_ENABLED:
+    value: "super-secure-key"
+  env3:
     name: JWT_ENABLED
-    value: "false" # 默认关闭 JWT
-  ENABLE_HTTPS:
+    value: "false"
+  env4:
     name: ENABLE_HTTPS
-    value: "false" # 默认关闭 HTTPS
-  DOCUMENTSERVER_PORT:
+    value: "false"
+  env5:
     name: DOCUMENTSERVER_PORT
-    value: "80" # 默认端口为 80
+    value: "80"
