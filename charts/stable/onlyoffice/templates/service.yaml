@@ -7,6 +7,6 @@ spec:
   type: {{ .Values.service.type }} # 从 values 文件中获取服务类型
   ports:
     - port: {{ .Values.service.port }} # 从 values 文件中获取服务端口
-      targetPort: container-port # 示例，替换为实际的容器端口
+      targetPort: 80 # 目标端口为 80
   selector: 
   {{ include "onlyoffice.selectorLabels" . | nindent 4 }} # 确保 selectorLabels 方法生成的标签遵循命名规则
