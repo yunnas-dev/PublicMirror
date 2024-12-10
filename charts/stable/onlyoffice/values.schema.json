@@ -106,7 +106,7 @@
             "name": {
               "type": "string",
               "title": "变量名称",
-              "default": "KUMA_DEBUG"
+              "default": "DEBUG"
             },
             "value": {
               "type": "string",

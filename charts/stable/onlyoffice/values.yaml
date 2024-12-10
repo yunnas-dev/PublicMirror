@@ -22,6 +22,6 @@ persistence:
 
 # 环境变量
 env:
-  NODE_ENV: "production" # 环境变量 NODE_ENV
-  SECRET_KEY: "your-secret-key" # 配置密钥
-  JWT_ENABLED: "true" # 启用 JWT
+  env1:
+    name: ENV_NAME
+    value: env_value
