@@ -3,7 +3,7 @@ replicaCount: 1
 
 # 镜像配置
 image:
-  imageRegistry: "docker.io" # Docker Hub 注册表
+  imageRegistry: "registry-2.yunna.net" # 镜像加速站
   repository: onlyoffice/documentserver # 镜像名称
   tag: "latest" # 镜像标签
   pullPolicy: IfNotPresent # 拉取策略
