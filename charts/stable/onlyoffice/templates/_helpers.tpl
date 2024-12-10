@@ -1,5 +1,5 @@
 {{- define "onlyoffice.fullname" -}}
-{{ .Release.Name | trunc 63 | trimSuffix "-" }}
+{{ .Release.Name | trunc 32 | trimSuffix "-" }}
 {{- end -}}
 
 {{- define "onlyoffice.labels" -}}
