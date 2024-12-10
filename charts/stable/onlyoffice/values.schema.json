@@ -83,7 +83,7 @@
       "type": "object",
       "title": "环境变量",
       "properties": {
-        "NODE_ENV": {
+        "env1": {
           "type": "object",
           "title": "运行环境",
           "properties": {
@@ -99,7 +99,7 @@
             }
           }
         },
-        "SECRET_KEY": {
+        "env2": {
           "type": "object",
           "title": "安全密钥",
           "properties": {
@@ -115,7 +115,7 @@
             }
           }
         },
-        "JWT_ENABLED": {
+        "env3": {
           "type": "object",
           "title": "是否启用 JWT",
           "properties": {
@@ -131,7 +131,7 @@
             }
           }
         },
-        "ENABLE_HTTPS": {
+        "env4": {
           "type": "object",
           "title": "是否启用 HTTPS",
           "properties": {
@@ -147,7 +147,7 @@
             }
           }
         },
-        "DOCUMENTSERVER_PORT": {
+        "env5": {
           "type": "object",
           "title": "应用监听端口",
           "properties": {

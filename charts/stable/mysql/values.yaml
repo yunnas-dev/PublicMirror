@@ -32,14 +32,17 @@ persistence:
 
 env:
   env1:
-    name: MYSQL_ROOT_PASSWORD
-    value: changeme
+    name: NODE_ENV
+    value: "production" # 默认运行环境为 production
   env2:
-    name: MYSQL_DATABASE
-    value: mydb
+    name: SECRET_KEY
+    value: "请设置你的密码" # 必须设置的安全密钥
   env3:
-    name: MYSQL_USER
-    value: user
+    name: JWT_ENABLED
+    value: "false" # 默认关闭 JWT
   env4:
-    name: MYSQL_PASSWORD
-    value: changeme
+    name: ENABLE_HTTPS
+    value: "false" # 默认关闭 HTTPS
+  env5:
+    name: DOCUMENTSERVER_PORT
+    value: "80" # 默认端口为 80
