@@ -1,5 +1,5 @@
 {{/*
-Generate the fullname of the release, limiting to 63 characters
+Generate the fullname of the release
 */}}
 {{- define "adminer.fullname" -}}
 {{- .Release.Name | trunc 63 | trimSuffix "-" -}}
@@ -9,16 +9,23 @@ Generate the fullname of the release, limiting to 63 characters
 Generate the name of the chart
 */}}
 {{- define "adminer.name" -}}
-adminer
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
-Generate common labels for the chart
+Common labels
 */}}
 {{- define "adminer.labels" -}}
-app.kubernetes.io/name: {{ include "adminer.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name | quote }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | quote }}
-createdBy: "Apps"
+{{ include "adminer.selectorLabels" . }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+{{/*
+Selector labels
+*/}}
+{{- define "adminer.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "adminer.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}

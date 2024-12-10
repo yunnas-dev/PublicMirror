@@ -1,20 +1,31 @@
 apiVersion: v2
 name: qinglong
 description: |
-  Qinglong 是一个用于自动化任务管理的开源工具，支持调度、脚本执行和任务监控。它可广泛应用于自动化工作流、脚本运行以及定时任务管理，为用户提供灵活的任务配置和实时监控功能，适合需要高效管理任务和脚本的用户。
+  Qinglong(青龙)是一个支持 Python3、JavaScript、Shell、Typescript 的定时任务管理平台,
+  具有在线编辑脚本、定时执行、日志查看、文件管理等功能。适合需要自动化任务调度和脚本管理的用户使用。
 version: 0.1.0
 appVersion: "2.17.11"
-home: https://hub.docker.com/r/whyour/qinglong
+
+home: https://github.com/whyour/qinglong
 sources:
   - https://github.com/whyour/qinglong
+  - https://hub.docker.com/r/whyour/qinglong
+  
 maintainers:
-  - name: "Qinglong Maintainer"
-    email: "support@qinglong.com"
+  - name: "whyour"
+    email: "whyour@qinglong.com"
+  - name: "Qinglong Team" 
+    email: "team@qinglong.com"
+
 annotations:
-  "yunna.net/category": "Automation"
-  "yunna.net/category-zh": "自动化"
+  "yunna.net/category": "Task Management"
+  "yunna.net/category-zh": "任务管理"
+
 keywords:
-  - "Qinglong"
-  - "Automation"
-  - "Task Management"
+  - Qinglong
+  - Automation
+  - Task Management
+  - Cron Jobs
+  - Script Management
+
 icon: "https://qn.whyour.cn/logo.png"

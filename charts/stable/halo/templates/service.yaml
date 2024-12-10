@@ -3,11 +3,13 @@ kind: Service
 metadata:
   name: {{ include "halo.fullname" . }}
   labels:
-    {{ include "halo.labels" . | nindent 4 }}
+    {{- include "halo.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
       targetPort: 8090
+      protocol: TCP
+      name: http
   selector:
-    app.kubernetes.io/name: {{ include "halo.name" . }}
+    {{- include "halo.selectorLabels" . | nindent 4 }}

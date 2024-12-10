@@ -3,11 +3,13 @@ kind: Service
 metadata:
   name: {{ include "adminer.fullname" . }}
   labels:
-    {{ include "adminer.labels" . | nindent 4 }}
+    {{- include "adminer.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.externalPort }}
       targetPort: {{ .Values.service.port }}
+      protocol: TCP
+      name: http
   selector:
-    app.kubernetes.io/name: {{ include "adminer.name" . }}
+    {{- include "adminer.selectorLabels" . | nindent 4 }}

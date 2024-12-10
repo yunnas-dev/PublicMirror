@@ -22,3 +22,8 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | quote }}
 createdBy: "Apps"
 {{- end -}}
+
+{{- define "code-server.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "code-server.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

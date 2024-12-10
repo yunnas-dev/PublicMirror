@@ -1,24 +1,38 @@
 {{/*
-Generate the fullname of the release, limiting to 63 characters
+Expand the name of the chart.
 */}}
-{{- define "filecodebox.fullname" -}}
-{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+{{- define "filebrowser.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
+{{- end }}
 
 {{/*
-Generate the name of the chart
+Create a default fully qualified app name.
 */}}
-{{- define "filecodebox.name" -}}
-filecodebox
-{{- end -}}
+{{- define "filebrowser.fullname" -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- end }}
 
 {{/*
-Generate common labels for the chart
+Create chart name and version as used by the chart label.
 */}}
-{{- define "filecodebox.labels" -}}
-app.kubernetes.io/name: {{ include "filecodebox.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name | quote }}
+{{- define "filebrowser.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Common labels
+*/}}
+{{- define "filebrowser.labels" -}}
+helm.sh/chart: {{ include "filebrowser.chart" . }}
+{{ include "filebrowser.selectorLabels" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-helm.sh/chart: {{ printf "%s-%s" .Chart.Name .Chart.Version | quote }}
-createdBy: "Apps"
-{{- end -}}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "filebrowser.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "filebrowser.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

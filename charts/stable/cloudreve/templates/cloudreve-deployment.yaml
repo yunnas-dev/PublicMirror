@@ -1,45 +1,48 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cloudreve
+  name: {{ include "cloudreve.fullname" . }}
+  labels:
+    {{- include "cloudreve.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: cloudreve
+      {{- include "cloudreve.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: cloudreve
+        {{- include "cloudreve.selectorLabels" . | nindent 8 }}
     spec:
       initContainers:
         - name: wait-for-mysql
           image: busybox:1.28
-          command: ['sh', '-c', 'until nc -z mysql 3306; do sleep 2; done']
+          command: ['sh', '-c', 'until nc -z mysql-{{ include "cloudreve.fullname" . }} 3306; do sleep 2; done']
       containers:
-        - name: cloudreve
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          env:
-            - name: DB_HOST
-              value: "mysql"
-            - name: DB_PORT
-              value: "3306"
-            - name: DB_USER
-              value: "{{ .Values.mysql.username }}"
-            - name: DB_PASSWORD
-              value: "{{ .Values.mysql.password }}"
-            - name: DB_NAME
-              value: "{{ .Values.mysql.database }}"
-            - name: ADMIN_EMAIL
-              value: "{{ .Values.admin.email }}"
-            - name: ADMIN_PASSWORD
-              value: "{{ .Values.admin.password }}"
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 5212
+            - name: http
+              containerPort: 5212
+          env:
+            {{- if kindIs "map" .Values.env }}
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $value.name }}
+              value: {{ $value.value | quote }}
+            {{- end }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - name: uploads
+            - name: data
               mountPath: /cloudreve/uploads
+            - name: config
+              mountPath: /cloudreve/conf
       volumes:
-        - name: uploads
+        - name: data
           persistentVolumeClaim:
-            claimName: cloudreve-pvc
+            claimName: {{ include "cloudreve.fullname" . }}-data
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ include "cloudreve.fullname" . }}-config

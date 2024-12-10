@@ -9,7 +9,12 @@ image:
 service:
   type: ClusterIP
   port: 8443
-  externalPort: 80
+  targetPort: 8443
+
+ingress:
+  enabled: true
+  className: nginx
+  host: code.local
 
 resources:
   limits:
@@ -21,13 +26,27 @@ resources:
 
 persistence:
   enabled: true
-  path: /config
+  storageClass: "local"
+  accessMode: ReadWriteOnce
   size: 5Gi
+  mountPath: /config
 
 env:
-  PUID: "1000"
-  PGID: "1000"
-  TZ: "Asia/Shanghai"
-  PASSWORD: "yunna"
-  SUDO_PASSWORD: "yunna"
-  DEFAULT_WORKSPACE: "/config/workspace"
+  env1:
+    name: PUID
+    value: "1000"
+  env2:
+    name: PGID
+    value: "1000"
+  env3:
+    name: TZ
+    value: "Asia/Shanghai"
+  env4:
+    name: PASSWORD
+    value: "yunna"
+  env5:
+    name: SUDO_PASSWORD
+    value: "yunna"
+  env6:
+    name: DEFAULT_WORKSPACE
+    value: "/config/workspace"

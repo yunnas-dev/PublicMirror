@@ -3,31 +3,53 @@ kind: Deployment
 metadata:
   name: {{ include "bitwarden.fullname" . }}
   labels:
-    {{ include "bitwarden.labels" . | nindent 4 }}
+    {{- include "bitwarden.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "bitwarden.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- include "bitwarden.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{ include "bitwarden.labels" . | nindent 8 }}
+        {{- include "bitwarden.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: bitwarden
+        - name: {{ .Chart.Name }}
           image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.service.port }}
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          env:
+            {{- if kindIs "map" .Values.env }}
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $value.name }}
+              value: {{ $value.value | quote }}
+            {{- end }}
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 30
           resources:
-            limits:
-              memory: "{{ .Values.resources.limits.memory }}"
-              cpu: "{{ .Values.resources.limits.cpu }}"
-            requests:
-              memory: "{{ .Values.resources.requests.memory }}"
-              cpu: "{{ .Values.resources.requests.cpu }}"
+            {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: data-volume
               mountPath: {{ .Values.persistence.path }}

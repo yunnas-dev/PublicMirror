@@ -18,3 +18,11 @@ resources:
   requests:
     cpu: 100m
     memory: 128Mi
+
+env:
+  env1:
+    name: ADMINER_DESIGN
+    value: "pepa-linha"
+  env2:
+    name: ADMINER_DEFAULT_SERVER
+    value: "mysql"

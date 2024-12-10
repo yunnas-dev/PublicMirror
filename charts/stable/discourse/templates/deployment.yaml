@@ -3,50 +3,47 @@ kind: Deployment
 metadata:
   name: {{ include "discourse.fullname" . }}
   labels:
-    {{ include "discourse.labels" . | nindent 4 }}
+    {{- include "discourse.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "discourse.fullname" . }}
+      {{- include "discourse.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ include "discourse.fullname" . }}
+        {{- include "discourse.labels" . | nindent 8 }}
+        {{- include "discourse.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: discourse
           image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          env:
-            - name: DISCOURSE_HOSTNAME
-              value: {{ .Values.env.DISCOURSE_HOSTNAME | quote }}
-            - name: DISCOURSE_DEVELOPER_EMAILS
-              value: {{ .Values.env.DISCOURSE_DEVELOPER_EMAILS | quote }}
-            - name: DISCOURSE_SMTP_ADDRESS
-              value: {{ .Values.env.DISCOURSE_SMTP_ADDRESS | quote }}
-            - name: DISCOURSE_SMTP_PORT
-              value: {{ .Values.env.DISCOURSE_SMTP_PORT | quote }}
-            - name: DISCOURSE_SMTP_USER_NAME
-              value: {{ .Values.env.DISCOURSE_SMTP_USER_NAME | quote }}
-            - name: DISCOURSE_SMTP_PASSWORD
-              value: {{ .Values.env.DISCOURSE_SMTP_PASSWORD | quote }}
-            - name: DISCOURSE_DB_HOST
-              value: {{ .Release.Name }}-postgresql
-            - name: DISCOURSE_DB_PORT
-              value: "{{ .Values.postgresql.service.port }}"
-            - name: DISCOURSE_DB_USERNAME
-              value: {{ .Values.postgresql.env.POSTGRES_USER | quote }}
-            - name: DISCOURSE_DB_PASSWORD
-              value: {{ .Values.postgresql.env.POSTGRES_PASSWORD | quote }}
-            - name: DISCOURSE_DB_NAME
-              value: {{ .Values.postgresql.env.POSTGRES_DB | quote }}
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
           ports:
-            - containerPort: 80
+            - containerPort: 3000
+          env:
+            {{- if kindIs "array" .Values.env }}
+            {{- range .Values.env }}
+            - name: "{{ .name }}"
+              value: "{{ .value }}"
+            {{- end }}
+            {{- else if kindIs "map" .Values.env }}
+            {{- range $key, $value := .Values.env }}
+            - name: "{{ $value.name }}"
+              value: "{{ $value.value }}"
+            {{- end }}
+            {{- end }}
+          resources:
+            requests:
+              memory: "{{ .Values.resources.requests.memory }}"
+              cpu: "{{ .Values.resources.requests.cpu }}"
+            limits:
+              memory: "{{ .Values.resources.limits.memory }}"
+              cpu: "{{ .Values.resources.limits.cpu }}"
           volumeMounts:
             - name: discourse-data
-              mountPath: /shared
+              mountPath: /bitnami/discourse
       volumes:
         - name: discourse-data
           persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-discourse-pvc
+            claimName: {{ include "discourse.fullname" . }}-pvc
