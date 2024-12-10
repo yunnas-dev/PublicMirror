@@ -1,0 +1,27 @@
+# 副本数量
+replicaCount: 1
+
+# 镜像配置
+image:
+  imageRegistry: "docker.io" # Docker Hub 注册表
+  repository: onlyoffice/documentserver # 镜像名称
+  tag: "latest" # 镜像标签
+  pullPolicy: IfNotPresent # 拉取策略
+
+# 服务配置
+service:
+  type: ClusterIP # 服务类型（ClusterIP, NodePort, LoadBalancer）
+  port: 80 # 服务端口
+
+# 持久化存储配置
+persistence:
+  enabled: true # 是否启用持久化
+  accessMode: ReadWriteOnce # 持久化存储访问模式
+  size: 10Gi # 存储大小
+  storageClass: "local" # 存储类名称
+
+# 环境变量
+env:
+  NODE_ENV: "production" # 环境变量 NODE_ENV
+  SECRET_KEY: "your-secret-key" # 配置密钥
+  JWT_ENABLED: "true" # 启用 JWT
