@@ -14,13 +14,14 @@ service:
   port: 6379                  # Redis 默认端口
 
 # 资源配置
-resources:                    # 资源限制和请求
-  limits:
-    cpu: 500m                 # CPU 限制
-    memory: 512Mi             # 内存限制
+resources:
   requests:
-    cpu: 250m                 # CPU 请求
-    memory: 256Mi             # 内存请求
+    cpu: "250m"            # 预留 0.25 核的 CPU
+    memory: "1Gi"          # 预留 1GB 的内存
+  limits:
+    cpu: "500m"            # 最大使用 0.5 核的 CPU
+    memory: "2Gi"          # 最大使用 2GB 内存
+
 
 # 持久化配置
 persistence:                  # 持久化配置
