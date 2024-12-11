@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "redis.fullname" . }}
+  name: {{ include "redis.fullname" . }}   # 确保此模板返回正确的名称
   labels:
-    {{- include "redis.labels" . | nindent 4 }}
+    {{- include "redis.labels" . | nindent 4 }}   # 确保返回有效的标签
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.replicaCount }}   # 通过 Values 获取副本数
   selector:
     matchLabels:
-      {{- include "redis.selectorLabels" . | nindent 6 }}
+      {{- include "redis.selectorLabels" . | nindent 6 }}  # 确保此模板返回有效的标签
   template:
     metadata:
       labels:
-        {{- include "redis.labels" . | nindent 8 }}
+        {{- include "redis.labels" . | nindent 8 }}   # 确保模板返回正确的标签
     spec:
       containers:
         - name: redis

@@ -1,11 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "redis.fullname" . }}
+  name: {{ include "redis.fullname" . }}  # 确保模板 "redis.fullname" 被定义并返回正确的名称
+  labels: {{- include "redis.labels" . | nindent 4 }}  # 确保 "redis.labels" 被正确定义并返回有效的标签
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.service.type }}       # 从 values.yaml 获取 service 类型
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: 6379
+    - port: {{ .Values.service.port }}   # 从 values.yaml 获取端口
+      targetPort: 6379                   # 如果容器使用不同端口，可修改为 .Values.service.targetPort
   selector:
-    {{- include "redis.selectorLabels" . | nindent 4 }}
+    {{- include "redis.selectorLabels" . | nindent 4 }}  # 确保 "redis.selectorLabels" 被正确定义并返回有效的标签
