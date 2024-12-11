@@ -8,4 +8,4 @@ spec:
     - port: {{ .Values.service.port }}
       targetPort: 6379
   selector:
-      app: {{ include "redis.name" . }}
+    {{- include "redis.selectorLabels" . | nindent 4 }}

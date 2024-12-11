@@ -3,16 +3,16 @@ kind: Deployment
 metadata:
   name: {{ include "redis.fullname" . }}
   labels:
-    app: {{ include "redis.name" . }}
+    {{- include "redis.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "redis.name" . }}
+      {{- include "redis.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ include "redis.name" . }}
+        {{- include "redis.labels" . | nindent 8 }}
     spec:
       containers:
         - name: redis
@@ -21,12 +21,14 @@ spec:
           ports:
             - containerPort: 6379
           env:
-            - name: REDIS_PASSWORD
-              value: {{ .Values.env.REDIS_PASSWORD }}
+            {{- with .Values.env.env1 }}
+            - name: {{ .name }}
+              value: {{ .value }}
+            {{- end }}
           volumeMounts:
             - name: redis-data
               mountPath: /data
       volumes:
         - name: redis-data
           persistentVolumeClaim:
-            claimName: redis-pvc
+            claimName: {{ include "redis.fullname" . }}-pvc
