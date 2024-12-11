@@ -1,0 +1,36 @@
+# 基础配置
+replicaCount: 1               # 副本数量
+
+# 镜像配置
+image:
+  imageRegistry: "registry-2.yunna.net"  # 镜像仓库
+  repository: "redis"         # 镜像名称
+  tag: "6.2.6"                # 镜像标签
+  pullPolicy: IfNotPresent    # 拉取策略
+
+# 服务配置
+service:
+  type: ClusterIP             # 服务类型
+  port: 6379                  # Redis 默认端口
+
+# 资源配置
+resources:                    # 资源限制和请求
+  limits:
+    cpu: 500m                 # CPU 限制
+    memory: 512Mi             # 内存限制
+  requests:
+    cpu: 250m                 # CPU 请求
+    memory: 256Mi             # 内存请求
+
+# 持久化配置
+persistence:                  # 持久化配置
+  enabled: true               # 启用持久化
+  accessMode: ReadWriteOnce   # 存储访问模式
+  size: 1Gi                   # 存储大小
+  storageClass: "local"       # 存储类
+
+# 环境变量配置
+env:                         # 环境变量
+  env1:
+    name: REDIS_PASSWORD     # 环境变量名
+    value: "yourpassword"    # 环境变量值
