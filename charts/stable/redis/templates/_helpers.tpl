@@ -2,7 +2,7 @@
   定义 redis 全名（可以在不同的资源中复用）
 */}}
 {{- define "redis.fullname" -}}
-{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- .Release.Name | trunc 32 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
