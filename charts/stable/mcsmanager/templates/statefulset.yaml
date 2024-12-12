@@ -2,55 +2,6 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "mcsmanager.fullname" . }}-web
-  labels:
-    {{- include "mcsmanager.labels" . | nindent 4 }}
-    component: web
-spec:
-  serviceName: {{ include "mcsmanager.fullname" . }}-web
-  replicas: {{ .Values.replicaCount }}
-  selector:
-    matchLabels:
-      {{- include "mcsmanager.selectorLabels" . | nindent 6 }}
-      component: web
-  template:
-    metadata:
-      labels:
-        {{- include "mcsmanager.selectorLabels" . | nindent 8 }}
-        component: web
-    spec:
-      containers:
-        - name: web
-          image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.web.repository }}:{{ .Values.image.web.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - containerPort: 23333
-              name: http
-          env:
-            {{- if kindIs "map" .Values.env }}
-            {{- range $key, $value := .Values.env }}
-            - name: {{ $value.name | quote }}
-              value: {{ $value.value | quote }}
-            {{- end }}
-            {{- end }}
-          volumeMounts:
-            - name: web-data
-              mountPath: /opt/mcsmanager/web/data
-            - name: web-logs
-              mountPath: /opt/mcsmanager/web/logs
-          resources:
-            {{- toYaml .Values.resources.web | nindent 12 }}
-      volumes:
-        - name: web-data
-          persistentVolumeClaim:
-            claimName: {{ include "mcsmanager.fullname" . }}-web-data
-        - name: web-logs
-          persistentVolumeClaim:
-            claimName: {{ include "mcsmanager.fullname" . }}-web-logs
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
   name: {{ include "mcsmanager.fullname" . }}-daemon
   labels:
     {{- include "mcsmanager.labels" . | nindent 4 }}
@@ -87,8 +38,6 @@ spec:
               mountPath: /opt/mcsmanager/daemon/data
             - name: daemon-logs
               mountPath: /opt/mcsmanager/daemon/logs
-            - name: docker-sock
-              mountPath: /var/run/docker.sock
           resources:
             {{- toYaml .Values.resources.daemon | nindent 12 }}
       volumes:
@@ -98,6 +47,3 @@ spec:
         - name: daemon-logs
           persistentVolumeClaim:
             claimName: {{ include "mcsmanager.fullname" . }}-daemon-logs
-        - name: docker-sock
-          hostPath:
-            path: /var/run/docker.sock
