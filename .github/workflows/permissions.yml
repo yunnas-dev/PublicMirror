@@ -1,0 +1,12 @@
+name: Repository Permissions
+
+permissions:
+  checks: read
+  pull-requests: write
+  issues: write
+  contents: read
+  statuses: read
+
+defaults:
+  run:
+    shell: bash
