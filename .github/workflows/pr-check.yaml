@@ -16,12 +16,6 @@ jobs:
         with:
           version: v3.12.3
 
-      - name: Install ct
-        run: |
-          wget https://github.com/helm/chart-testing/releases/latest/download/chart-testing_linux_amd64.tar.gz
-          tar xzvf chart-testing_linux_amd64.tar.gz
-          sudo mv ct /usr/local/bin/ct
-
       - name: Validate Chart Structure
         run: |
           for chart in $(find ./charts/stable -name Chart.yaml -exec dirname {} \;); do
@@ -63,11 +57,13 @@ jobs:
 
       - name: Validate Helm Templates
         run: |
-          helm lint ./charts/stable/*
-          
-      - name: Run Chart-Testing
-        run: |
-          ct lint --config ct.yaml --all
+          for chart in $(find ./charts/stable -name Chart.yaml -exec dirname {} \;); do
+            echo "Linting chart: $chart"
+            helm lint "$chart"
+            
+            echo "Testing template rendering: $chart"
+            helm template test "$chart"
+          done
 
       - name: Validate JSON Schema
         run: |
