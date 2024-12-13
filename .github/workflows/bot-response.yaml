@@ -18,11 +18,10 @@ jobs:
     steps:
       - uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GH_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const run = context.payload.workflow_run;
             
-            // 获取相关的PR  
             const prs = await github.rest.pulls.list({
               ...context.repo,
               head: run.head_branch 
@@ -35,13 +34,11 @@ jobs:
             
             const pr = prs.data[0];
             
-            // 获取工作流日志
             const logs = await github.rest.actions.downloadWorkflowRunLogs({
               ...context.repo,
               run_id: run.id
             });
             
-            // 提取错误信息
             const errors = [];
             logs.data.toString().split('\n').forEach(line => {
               if (line.includes('::error::')) {
@@ -54,7 +51,6 @@ jobs:
               return;
             }
             
-            // 创建评论
             let comment = `## ❌ PR 检查失败\n\n`;
             comment += `### 失败项\n`;
             errors.forEach(err => comment += `- ${err}\n`);

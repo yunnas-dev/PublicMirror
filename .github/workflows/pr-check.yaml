@@ -19,7 +19,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Set up Helm
         uses: azure/setup-helm@v3
@@ -150,7 +150,7 @@ jobs:
         if: failure()
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GH_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const errors = process.env.error_msg?.split('\n').filter(Boolean) || [];
             if (errors.length === 0) return;
