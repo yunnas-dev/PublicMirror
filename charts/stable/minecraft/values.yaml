@@ -11,12 +11,12 @@ service:
   port: 25565
 
 resources:
-  requests:
-    memory: 1Gi
-    cpu: 0.5
   limits:
-    memory: 2Gi
-    cpu: 1
+    cpu: 2000m
+    memory: 2048Mi
+  requests:
+    cpu: 1000m
+    memory: 1024Mi
 
 persistence:
   enabled: true

@@ -21,16 +21,13 @@ resources:
 persistence:
   enabled: true
   accessMode: ReadWriteOnce
-  size: 10Gi  # Persistent volume size
-  storageClass: "local"  # 动态存储类
+  size: 10Gi
+  storageClass: "local"
 
 env:
-  - name: NODE_ENV
-    value: production
-  - name: HEXO_DEBUG
+  env1:
+    name: "NODE_ENV"
+    value: "production"
+  env2:
+    name: "HEXO_DEBUG"
     value: "false"
-  - name: CUSTOM_VAR
-    valueFrom:
-      secretKeyRef:
-        name: my-secret
-        key: customKey

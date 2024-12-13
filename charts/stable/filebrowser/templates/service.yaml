@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ include "filebrowser.fullname" . }}
   labels:
-    {{ include "filebrowser.labels" . | nindent 4 }}
+    {{- include "filebrowser.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -12,3 +12,4 @@ spec:
       protocol: TCP
   selector:
     app.kubernetes.io/name: {{ include "filebrowser.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
