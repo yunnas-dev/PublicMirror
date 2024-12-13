@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  imageRegistry: "registry-2.yunna.net"
+  imageRegistry: ""
   web:
     repository: githubyumao/mcsmanager-web
     tag: latest
