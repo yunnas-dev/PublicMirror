@@ -34,15 +34,12 @@ jobs:
           sudo apt-get install -y jq git
           sudo apt-get install -y gh
 
-      - name: Authenticate GitHub CLI
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 或 ${{ secrets.GH_TOKEN }}
-        run: |
-          echo $GH_TOKEN | gh auth login --with-token
-
       - name: Get modified directories
         id: changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GITHUB_TOKEN
         run: |
+          # 获取 PR 中变更的文件
           CHANGED_FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path' | grep '^charts/stable/' || true)
           
           if [ -z "$CHANGED_FILES" ]; then
@@ -53,7 +50,7 @@ jobs:
           echo "Files changed in PR:"
           echo "$CHANGED_FILES"
           
-          # 提取变更的chart目录 
+          # 提取变更的 chart 目录 
           CHANGED_DIRS=$(echo "$CHANGED_FILES" | awk -F/ '/^charts\/stable\/[^\/]+/{printf "%s/%s/%s\n", $1,$2,$3}' | sort -u)
           
           echo "Charts to validate:"
