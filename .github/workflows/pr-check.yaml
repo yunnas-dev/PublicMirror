@@ -1,3 +1,4 @@
+# pr-check.yaml 
 name: PR Checks
 
 on:
@@ -15,6 +16,8 @@ jobs:
    
    steps:
      - uses: actions/checkout@v3
+       with:
+         fetch-depth: 0
      
      - name: Set up Helm
        uses: azure/setup-helm@v3
@@ -28,22 +31,46 @@ jobs:
          sudo chmod +x /usr/local/bin/yq
          sudo apt-get install -y jq git
 
+     - name: Get modified directories
+       id: changes
+       run: |
+         # 获取PR的base commit和head commit
+         BASE_SHA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+           "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" \
+           | jq -r .base.sha)
+         HEAD_SHA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+           "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" \
+           | jq -r .head.sha)
+         
+         # 获取变更的目录
+         CHANGED_DIRS=$(git diff --dirstat=files,0 $BASE_SHA..$HEAD_SHA | grep -o "charts/stable/[^/]*" | sort -u)
+         echo "changed_dirs=$CHANGED_DIRS" >> $GITHUB_OUTPUT
+         echo "Changed directories: $CHANGED_DIRS"
+
      - name: Validate Charts Structure
        run: |
          EXIT_CODE=0
          
-         for chart in $(find ./charts/stable -name Chart.yaml -exec dirname {} \;); do
+         # 使用上一步获取的目录
+         CHANGED_DIRS="${{ steps.changes.outputs.changed_dirs }}"
+         
+         if [ -z "$CHANGED_DIRS" ]; then
+           echo "No charts were modified in this PR"
+           exit 0
+         fi
+         
+         for chart in $CHANGED_DIRS; do
            echo "检查 Chart: $chart"
            
            # 检查必需文件
            for file in Chart.yaml values.yaml values.schema.json README.md; do
              if [ ! -f "$chart/$file" ]; then
-               echo "::error::缺少必需文件：$file，位于 $chart"
+               echo "::error::缺少必需文件：$file，位于 $chart" 
                EXIT_CODE=1
              fi
            done
            
-           # 检查 Chart.yaml 必需字段
+           # 检查 Chart.yaml 必需字段 
            for field in apiVersion name description version appVersion annotations; do
              if ! yq e ".$field" "$chart/Chart.yaml" > /dev/null 2>&1; then
                echo "::error::Chart.yaml 中缺少必需字段：$field"
@@ -70,8 +97,7 @@ jobs:
            fi
            
            # 检查必需的模板文件
-           template_files=("deployment.yaml" "service.yaml" "_helpers.tpl")
-           for tmpl in "${template_files[@]}"; do
+           for tmpl in deployment.yaml service.yaml _helpers.tpl; do
              if [ ! -f "$chart/templates/$tmpl" ]; then
                echo "::error::缺少必需的模板文件：$tmpl"
                EXIT_CODE=1
@@ -84,7 +110,7 @@ jobs:
              EXIT_CODE=1
            fi
            
-           # Schema 验证 
+           # Schema 验证
            if ! helm template test "$chart" > /dev/null; then
              echo "::error::values.schema.json 验证失败"
              EXIT_CODE=1
@@ -96,15 +122,20 @@ jobs:
      - name: Check Chart Version Bump
        if: github.event_name == 'pull_request'
        run: |
-         git fetch origin ${{ github.base_ref }}
+         EXIT_CODE=0
+         CHANGED_DIRS="${{ steps.changes.outputs.changed_dirs }}"
          
-         for chart in $(find ./charts/stable -name Chart.yaml -exec dirname {} \;); do
+         if [ -z "$CHANGED_DIRS" ]; then
+           exit 0
+         fi
+         
+         for chart in $CHANGED_DIRS; do
            if git diff --quiet origin/${{ github.base_ref }} -- "$chart/Chart.yaml"; then
              continue
            fi
            
            if ! git show origin/${{ github.base_ref }}:"$chart/Chart.yaml" | yq e '.version' - > /dev/null 2>&1; then
-             echo "::error::无法获取旧版本号"
+             echo "::error::无法获取旧版本号" 
              continue
            fi
            
@@ -113,6 +144,31 @@ jobs:
            
            if [ "$OLD_VERSION" = "$NEW_VERSION" ]; then
              echo "::error::Chart版本未更新：$chart ($OLD_VERSION)"
-             exit 1
+             EXIT_CODE=1
            fi
          done
+         
+         exit $EXIT_CODE
+
+     - name: Create Status Check
+       if: always()
+       uses: actions/github-script@v7
+       with:
+         script: |
+           const conclusion = process.env.GITHUB_WORKFLOW_CONCLUSION || 'failure';
+           const context = 'Chart Validation';
+           
+           await github.rest.checks.create({
+             owner: context.repo.owner,
+             repo: context.repo.repo,
+             name: context,
+             head_sha: context.sha,
+             status: 'completed',
+             conclusion: conclusion === 'success' ? 'success' : 'failure',
+             output: {
+               title: conclusion === 'success' ? 'Charts validated successfully' : 'Chart validation failed',
+               summary: conclusion === 'success' 
+                 ? 'All chart validations passed.'
+                 : 'Some chart validations failed. Please check the workflow logs for details.'
+             }
+           });
