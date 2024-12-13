@@ -1,94 +1,93 @@
-name: PR Bot Response
+name: PR Checks
 
 on:
-  check_suite:
-    types: [completed]
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
       - 'charts/**'
 
 jobs:
-  bot-response:
+  validate-charts:
     runs-on: ubuntu-latest
-    if: github.event.check_suite.conclusion == 'failure'
     permissions:
-      checks: read
+      contents: read
       pull-requests: write
-      issues: write
     
     steps:
       - uses: actions/checkout@v3
-        
+      
       - name: Set up Helm
         uses: azure/setup-helm@v3
         with:
           version: v3.12.3
 
-      - name: Validate Charts
-        id: validate
+      - name: Install dependencies
         run: |
-          failed_checks=()
+          sudo apt-get update
+          sudo apt-get install -y yq
+
+      - name: Validate Charts Structure
+        run: |
+          EXIT_CODE=0
           
           for chart in $(find ./charts/stable -name Chart.yaml -exec dirname {} \;); do
+            echo "检查 Chart: $chart"
+            
             # 检查必需文件
             for file in Chart.yaml values.yaml values.schema.json README.md; do
               if [ ! -f "$chart/$file" ]; then
-                failed_checks+=("缺少必需文件：$file，位于 $chart")
+                echo "::error::缺少必需文件：$file，位于 $chart"
+                EXIT_CODE=1
               fi
             done
             
             # 检查 Chart.yaml 必需字段
-            required_fields=("apiVersion" "name" "description" "version" "appVersion" "annotations")
-            for field in "${required_fields[@]}"; do
+            for field in apiVersion name description version appVersion annotations; do
               if ! yq e ".$field" "$chart/Chart.yaml" > /dev/null 2>&1; then
-                failed_checks+=("Chart.yaml 中缺少必需字段：$field")
+                echo "::error::Chart.yaml 中缺少必需字段：$field"
+                EXIT_CODE=1
               fi
             done
             
             # Helm lint 检查
             if ! helm lint "$chart"; then
-              failed_checks+=("Helm lint 检查失败：$chart")
+              echo "::error::Helm lint 检查失败：$chart"
+              EXIT_CODE=1
+            fi
+            
+            # 检查模板渲染
+            if ! helm template test "$chart"; then
+              echo "::error::Helm template 渲染失败：$chart"
+              EXIT_CODE=1
+            fi
+
+            # values.schema.json 格式检查
+            if ! jq empty "$chart/values.schema.json"; then
+              echo "::error::values.schema.json 格式无效：$chart"
+              EXIT_CODE=1
             fi
           done
           
-          # 将失败项写入环境变量
-          if [ ${#failed_checks[@]} -ne 0 ]; then
-            echo "FAILED_CHECKS<<EOF" >> $GITHUB_ENV
-            printf '%s\n' "${failed_checks[@]}" >> $GITHUB_ENV
-            echo "EOF" >> $GITHUB_ENV
-            exit 1
-          fi
+          exit $EXIT_CODE
 
-      - uses: actions/github-script@v7
-        if: failure()
-        with:
-          script: |
-            const { owner, repo } = context.repo;
-            const prNumber = context.payload.pull_request?.number || context.payload.check_suite.pull_requests[0]?.number;
+      - name: Check Chart Version Bump
+        if: github.event_name == 'pull_request'
+        run: |
+          EXIT_CODE=0
+          git fetch origin ${{ github.base_ref }}
+          
+          for chart in $(find ./charts/stable -name Chart.yaml -exec dirname {} \;); do
+            if git diff --quiet origin/${{ github.base_ref }} -- "$chart/Chart.yaml"; then
+              continue
+            fi
             
-            if (!prNumber) return;
+            OLD_VERSION=$(git show origin/${{ github.base_ref }}:"$chart/Chart.yaml" | yq e '.version' -)
+            NEW_VERSION=$(yq e '.version' "$chart/Chart.yaml")
             
-            const failedChecks = process.env.FAILED_CHECKS?.split('\n').filter(Boolean) || [];
-            
-            let comment = `❌ PR检查失败\n\n`;
-            comment += `失败的检查项:\n`;
-            failedChecks.forEach(check => {
-              comment += `- ${check}\n`;
-            });
-            comment += `\n请参考文档: [Chart开发规范](../docs/charts/STANDARDS.md)\n\n`;
-            comment += `修复后重新提交即可触发检查。`;
-            
-            await github.rest.issues.createComment({
-              owner,
-              repo,
-              issue_number: prNumber,
-              body: comment
-            });
-
-            await github.rest.issues.addLabels({
-              owner,
-              repo,
-              issue_number: prNumber,
-              labels: ['needs-fix']
-            });
+            if [ "$OLD_VERSION" = "$NEW_VERSION" ]; then
+              echo "::error::Chart版本未更新：$chart ($OLD_VERSION)"
+              EXIT_CODE=1
+            fi
+          done
+          
+          exit $EXIT_CODE

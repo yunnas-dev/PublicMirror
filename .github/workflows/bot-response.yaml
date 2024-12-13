@@ -1,0 +1,126 @@
+name: PR Bot Response
+
+on:
+  check_suite:
+    types: [completed]
+
+jobs:
+  validate-and-respond:
+    runs-on: ubuntu-latest
+    if: github.event.check_suite.conclusion == 'failure'
+    permissions:
+      checks: read
+      pull-requests: write
+      issues: write
+      contents: read
+    
+    steps:
+      - uses: actions/checkout@v3
+        
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.3
+
+      - name: Validate Charts
+        id: validate
+        run: |
+          failed_checks=()
+          
+          for chart in $(find ./charts/stable -name Chart.yaml -exec dirname {} \;); do
+            echo "检查 Chart: $chart"
+            
+            # 检查必需文件
+            for file in Chart.yaml values.yaml values.schema.json README.md; do
+              if [ ! -f "$chart/$file" ]; then
+                failed_checks+=("缺少必需文件：$file，位于 $chart")
+              fi
+            done
+            
+            # 检查 Chart.yaml 必需字段
+            required_fields=("apiVersion" "name" "description" "version" "appVersion" "annotations")
+            for field in "${required_fields[@]}"; do
+              if ! yq e ".$field" "$chart/Chart.yaml" > /dev/null 2>&1; then
+                failed_checks+=("Chart.yaml 中缺少必需字段：$field")
+              fi
+            done
+            
+            # 检查资源配置
+            if ! grep -q "resources:" "$chart/values.yaml"; then
+              failed_checks+=("values.yaml 中缺少资源配置")
+            fi
+            
+            # 检查持久化配置
+            if ! grep -q "persistence:" "$chart/values.yaml"; then
+              failed_checks+=("values.yaml 中缺少持久化配置")
+            fi
+            
+            # Helm lint 检查
+            if ! helm lint "$chart"; then
+              failed_checks+=("Helm lint 检查失败：$chart")
+            fi
+
+            # 检查模板文件必需字段
+            template_files=("deployment.yaml" "service.yaml" "_helpers.tpl")
+            for tmpl in "${template_files[@]}"; do
+              if [ ! -f "$chart/templates/$tmpl" ]; then
+                failed_checks+=("缺少必需的模板文件：$tmpl")
+              fi
+            done
+          done
+          
+          # 将失败项写入环境变量
+          if [ ${#failed_checks[@]} -ne 0 ]; then
+            echo "FAILED_CHECKS<<EOF" >> $GITHUB_ENV
+            printf '%s\n' "${failed_checks[@]}" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+            exit 1
+          fi
+
+      - uses: actions/github-script@v7
+        if: failure()
+        with:
+          script: |
+            try {
+              const { owner, repo } = context.repo;
+              const prNumber = context.payload.pull_request?.number || context.payload.check_suite.pull_requests[0]?.number;
+              
+              if (!prNumber) {
+                console.log("找不到相关的PR编号");
+                return;
+              }
+              
+              const failedChecks = process.env.FAILED_CHECKS?.split('\n').filter(Boolean) || [];
+              
+              let comment = `## ❌ PR检查失败\n\n`;
+              comment += `### 失败项\n`;
+              failedChecks.forEach(check => {
+                comment += `- ${check}\n`;
+              });
+              
+              comment += `\n### 修复建议\n`;
+              comment += `1. 请检查上述失败项\n`;
+              comment += `2. 参考 [Chart开发规范](../docs/charts/STANDARDS.md)\n`;
+              comment += `3. 使用 \`helm lint\` 验证语法\n`;
+              comment += `4. 确保所有必需文件和字段完整\n\n`;
+              comment += `修复后重新提交即可触发检查。`;
+              
+              // 添加评论
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body: comment
+              });
+
+              // 添加标签
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: prNumber,
+                labels: ['needs-fix']
+              });
+            } catch (error) {
+              console.error('执行失败:', error);
+              core.setFailed(`Bot响应失败: ${error.message}`);
+            }
