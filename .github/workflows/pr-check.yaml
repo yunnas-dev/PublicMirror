@@ -17,19 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout base repository
+      - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.base.sha }}
-          path: base
 
-      - name: Checkout PR
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          path: pr
-
-      - name: Set up Helm
+      - name: Setup Helm
         uses: azure/setup-helm@v3
         with:
           version: v3.12.3
@@ -41,185 +32,132 @@ jobs:
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
 
-      - name: Find modified charts
-        id: changed-charts
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v32
+        with:
+          files: |
+            charts/**
+
+      - name: Extract chart directories
+        id: chart-dirs
         run: |
-          cd pr
-          PR_BRANCH="${{ github.event.pull_request.head.ref }}"
-          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
-          CHANGED_FILES=$(git diff --name-only origin/$BASE_BRANCH...origin/$PR_BRANCH)
-          CHART_DIRS=$(echo "$CHANGED_FILES" | grep '^charts/stable/[^/]\+/' | cut -d/ -f1-3 | sort -u)
-          
+          CHART_DIRS=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | grep '^charts/stable/[^/]\+/' | cut -d/ -f1-3 | sort -u)
           if [ -z "$CHART_DIRS" ]; then
             echo "No chart changes detected"
-            echo "changed_charts=[]" >> $GITHUB_OUTPUT
+            echo "chart_dirs=[]" >> $GITHUB_OUTPUT
             exit 0
           fi
           
           # Convert to JSON array
           CHART_JSON="$(echo "$CHART_DIRS" | jq -R -s -c 'split("\n")[:-1]')"
-          echo "changed_charts=$CHART_JSON" >> $GITHUB_OUTPUT
+          echo "chart_dirs=$CHART_JSON" >> $GITHUB_OUTPUT
 
       - name: Validate charts
-        id: validation
-        if: ${{ steps.changed-charts.outputs.changed_charts != '[]' }}
+        id: validate
+        if: ${{ steps.chart-dirs.outputs.chart_dirs != '[]' }}
         run: |
-          ERRORS=()
-          
           validate_chart() {
             local chart_dir="$1"
             local errors=()
             
-            # Required files check
+            # Check required files
             for file in Chart.yaml values.yaml values.schema.json README.md; do
               if [ ! -f "$chart_dir/$file" ]; then
                 errors+=("Missing required file: $file")
               fi
             done
             
-            # Chart.yaml validation
+            # Validate Chart.yaml
             if [ -f "$chart_dir/Chart.yaml" ]; then
-              local chart_yaml="$chart_dir/Chart.yaml"
-              
-              # Required fields check
               for field in apiVersion name description version appVersion annotations; do
-                if ! yq e ".$field" "$chart_yaml" > /dev/null 2>&1; then
+                if ! yq e ".$field" "$chart_dir/Chart.yaml" > /dev/null 2>&1; then
                   errors+=("Chart.yaml missing required field: $field")
                 fi
               done
               
-              # Annotations check
-              if ! yq e '.annotations."yunna.net/category"' "$chart_yaml" > /dev/null 2>&1; then
+              # Check annotations
+              if ! yq e '.annotations."yunna.net/category"' "$chart_dir/Chart.yaml" > /dev/null 2>&1; then
                 errors+=("Missing yunna.net/category annotation")
               fi
-              if ! yq e '.annotations."yunna.net/category-zh"' "$chart_yaml" > /dev/null 2>&1; then
+              if ! yq e '.annotations."yunna.net/category-zh"' "$chart_dir/Chart.yaml" > /dev/null 2>&1; then
                 errors+=("Missing yunna.net/category-zh annotation")
               fi
             fi
             
-            # Values.yaml validation
+            # Check values.yaml
             if [ -f "$chart_dir/values.yaml" ]; then
-              # Image registry check
               if ! yq e '.image.imageRegistry' "$chart_dir/values.yaml" | grep -q "registry-2.yunna.net"; then
                 errors+=("Image registry must be registry-2.yunna.net")
               fi
               
-              # Required configurations check
               for config in persistence resources; do
                 if ! yq e ".$config" "$chart_dir/values.yaml" > /dev/null 2>&1; then
-                  errors+=("Missing required configuration: $config")
+                  errors+=("Missing $config configuration")
                 fi
               done
             fi
             
-            # Template files check
+            # Check templates
             for tmpl in deployment.yaml service.yaml _helpers.tpl; do
               if [ ! -f "$chart_dir/templates/$tmpl" ]; then
-                errors+=("Missing required template: $tmpl")
+                errors+=("Missing template: $tmpl")
               fi
             done
             
-            # Helm lint
+            # Run helm lint
             if ! helm lint "$chart_dir" > /dev/null 2>&1; then
-              errors+=("Helm lint check failed")
+              errors+=("helm lint check failed")
             fi
             
-            echo "${errors[@]}"
+            if [ ${#errors[@]} -gt 0 ]; then
+              printf "%s\n" "${errors[@]}"
+              return 1
+            fi
+            return 0
           }
           
-          # Process each changed chart
           REPORT=""
-          for chart in $(echo '${{ steps.changed-charts.outputs.changed_charts }}' | jq -r '.[]'); do
+          FAILED=false
+          
+          for chart in $(echo '${{ steps.chart-dirs.outputs.chart_dirs }}' | jq -r '.[]'); do
             echo "Validating chart: $chart"
             
-            # Run validation
-            CHART_ERRORS=($(validate_chart "pr/$chart"))
-            
-            if [ ${#CHART_ERRORS[@]} -gt 0 ]; then
+            if ! validate_chart "$chart"; then
               REPORT+="### ❌ $chart\n"
-              for error in "${CHART_ERRORS[@]}"; do
-                REPORT+="- $error\n"
-              done
-              REPORT+="\n"
+              FAILED=true
             else
-              REPORT+="### ✅ $chart\n- All checks passed\n\n"
+              REPORT+="### ✅ $chart - Validation passed\n"
             fi
           done
           
-          # Save report
           echo "report<<EOF" >> $GITHUB_OUTPUT
           echo -e "$REPORT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
           
-          # Set status
-          if [[ "$REPORT" =~ ❌ ]]; then
-            echo "status=failure" >> $GITHUB_OUTPUT
-          else
-            echo "status=success" >> $GITHUB_OUTPUT
+          if [ "$FAILED" = "true" ]; then
+            exit 1
           fi
 
-      - name: Check version bump
-        id: version-check
-        if: ${{ steps.changed-charts.outputs.changed_charts != '[]' }}
-        run: |
-          REPORT=""
-          
-          for chart in $(echo '${{ steps.changed-charts.outputs.changed_charts }}' | jq -r '.[]'); do
-            echo "Checking version for: $chart"
-            
-            # Get old version
-            OLD_VERSION=""
-            if [ -f "base/$chart/Chart.yaml" ]; then
-              OLD_VERSION=$(yq e '.version' "base/$chart/Chart.yaml")
-            fi
-            
-            # Get new version
-            NEW_VERSION=$(yq e '.version' "pr/$chart/Chart.yaml")
-            
-            if [ ! -z "$OLD_VERSION" ] && [ "$OLD_VERSION" = "$NEW_VERSION" ]; then
-              REPORT+="### ⚠️ $chart\n"
-              REPORT+="- Chart version not bumped (still $NEW_VERSION)\n\n"
-            else
-              REPORT+="### ✅ $chart\n"
-              if [ -z "$OLD_VERSION" ]; then
-                REPORT+="- New chart with version $NEW_VERSION\n\n"
-              else
-                REPORT+="- Version bumped from $OLD_VERSION to $NEW_VERSION\n\n"
-              fi
-            fi
-          done
-          
-          echo "report<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$REPORT" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Update PR
-        if: ${{ steps.changed-charts.outputs.changed_charts != '[]' }}
+      - name: Create PR Comment
+        if: always() && steps.chart-dirs.outputs.chart_dirs != '[]'
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             ## Chart Validation Report
             
-            ${{ steps.validation.outputs.report }}
+            ${{ steps.validate.outputs.report || '❌ Validation failed with an error' }}
             
-            ## Version Check Report
+            ### 注意事项
+            - 请确保所有必需文件完整
+            - Chart 结构需符合[Chart开发规范](../docs/charts/STANDARDS.md)
+            - 镜像仓库地址必须为 registry-2.yunna.net
             
-            ${{ steps.version-check.outputs.report }}
-            
-            ### Next Steps
-            
-            ${{ steps.validation.outputs.status == 'failure' && '❌ Please fix the reported issues and update your PR.' || '✅ Validation passed! Your PR is ready for review.' }}
-            
-            详细规范请参考: [Chart开发规范](../docs/charts/STANDARDS.md)
+            请修复以上问题并重新提交。
 
-      - name: Update PR labels
-        if: ${{ steps.changed-charts.outputs.changed_charts != '[]' }}
-        run: |
-          if [ "${{ steps.validation.outputs.status }}" = "failure" ]; then
-            gh pr edit ${{ github.event.pull_request.number }} --add-label "needs-fix"
-          else
-            gh pr edit ${{ github.event.pull_request.number }} --remove-label "needs-fix"
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Add PR Label
+        if: failure() && steps.chart-dirs.outputs.chart_dirs != '[]'
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          labels: needs-fix
