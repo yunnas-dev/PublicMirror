@@ -44,10 +44,10 @@ jobs:
       - name: Find modified charts
         id: changed-charts
         run: |
-          # Compare files between PR and base
           cd pr
-          BASE_SHA=$(cd ../base && git rev-parse HEAD)
-          CHANGED_FILES=$(git diff --name-only $BASE_SHA)
+          PR_BRANCH="${{ github.event.pull_request.head.ref }}"
+          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+          CHANGED_FILES=$(git diff --name-only origin/$BASE_BRANCH...origin/$PR_BRANCH)
           CHART_DIRS=$(echo "$CHANGED_FILES" | grep '^charts/stable/[^/]\+/' | cut -d/ -f1-3 | sort -u)
           
           if [ -z "$CHART_DIRS" ]; then
