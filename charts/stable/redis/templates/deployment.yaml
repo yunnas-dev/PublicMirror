@@ -1,34 +1,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "redis.fullname" . }}   # 确保此模板返回正确的名称
+  name: {{ include "redis.fullname" . }}
   labels:
-    {{- include "redis.labels" . | nindent 4 }}   # 确保返回有效的标签
+    {{- include "redis.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicaCount }}   # 通过 Values 获取副本数
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "redis.selectorLabels" . | nindent 6 }}  # 确保此模板返回有效的标签
+      {{- include "redis.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "redis.labels" . | nindent 8 }}   # 确保模板返回正确的标签
+        {{- include "redis.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: redis
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 6379
+            - containerPort: 80
           env:
-            {{- with .Values.env.env1 }}
-            - name: {{ .name }}
-              value: {{ .value }}
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
             {{- end }}
           volumeMounts:
-            - name: redis-data
-              mountPath: /data
+            - name: data
+              mountPath: /var/www/redis/Data # 默认持久化路径
       volumes:
-        - name: redis-data
+        - name: data
           persistentVolumeClaim:
             claimName: {{ include "redis.fullname" . }}-pvc
