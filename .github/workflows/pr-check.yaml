@@ -31,34 +31,31 @@ jobs:
          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
          sudo chmod +x /usr/local/bin/yq
          sudo apt-get install -y jq git
+         sudo apt-get install -y gh
 
      - name: Get modified directories
        id: changes
+       env:
+         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
        run: |
-         # Debug输出修改的文件
-         echo "Modified files:"
-         git diff --name-only --diff-filter=ACDMRT ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}
-         
-         # 获取修改的charts目录
-         CHANGED_FILES=$(git diff --name-only --diff-filter=ACDMRT ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep '^charts/stable/' || true)
+         # 仅获取PR中变更的文件
+         CHANGED_FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path' | grep '^charts/stable/' || true)
          
          if [ -z "$CHANGED_FILES" ]; then
-           echo "No charts were modified"
+           echo "No charts modified in this PR"
            exit 0
          fi
          
-         # 输出找到的文件
-         echo "Found changed files:"
+         echo "Files changed in PR:"
          echo "$CHANGED_FILES"
          
-         # 提取目录名并去重
-         CHANGED_DIRS=$(echo "$CHANGED_FILES" | awk -F/ '/^charts\/stable\/[^\/]+/{print $1"/"$2"/"$3}' | sort -u)
+         # 提取变更的chart目录 
+         CHANGED_DIRS=$(echo "$CHANGED_FILES" | awk -F/ '/^charts\/stable\/[^\/]+/{printf "%s/%s/%s\n", $1,$2,$3}' | sort -u)
          
-         # Debug输出
-         echo "Changed directories to check:"
+         echo "Charts to validate:"
          echo "$CHANGED_DIRS"
          
-         echo "changed_dirs<<EOF" >> $GITHUB_OUTPUT 
+         echo "changed_dirs<<EOF" >> $GITHUB_OUTPUT
          echo "$CHANGED_DIRS" >> $GITHUB_OUTPUT
          echo "EOF" >> $GITHUB_OUTPUT
 
@@ -83,25 +80,30 @@ jobs:
            done
            
            # 检查 Chart.yaml 必需字段
-           for field in apiVersion name description version appVersion annotations; do
-             if ! yq e ".$field" "$chart/Chart.yaml" > /dev/null 2>&1; then
-               ERROR_MSG="${ERROR_MSG}- Chart.yaml 中缺少必需字段: $field, 位于 $chart\n"
+           if [ -f "$chart/Chart.yaml" ]; then
+             for field in apiVersion name description version appVersion annotations; do
+               if ! yq e ".$field" "$chart/Chart.yaml" > /dev/null 2>&1; then
+                 ERROR_MSG="${ERROR_MSG}- Chart.yaml 中缺少必需字段: $field, 位于 $chart\n"
+               fi
+             done
+           fi
+
+           # 检查values.yaml必需配置
+           if [ -f "$chart/values.yaml" ]; then
+             # 检查镜像仓库配置
+             if ! yq e '.image.imageRegistry' "$chart/values.yaml" | grep -q "registry-2.yunna.net"; then
+               ERROR_MSG="${ERROR_MSG}- 镜像仓库地址必须为 registry-2.yunna.net, 位于 $chart\n"
              fi
-           done
 
-           # 检查镜像仓库配置
-           if ! yq e '.image.imageRegistry' "$chart/values.yaml" | grep -q "registry-2.yunna.net"; then
-             ERROR_MSG="${ERROR_MSG}- 镜像仓库地址必须为 registry-2.yunna.net, 位于 $chart\n"
-           fi
+             # 检查持久化配置
+             if ! yq e '.persistence' "$chart/values.yaml" > /dev/null 2>&1; then
+               ERROR_MSG="${ERROR_MSG}- 缺少持久化配置, 位于 $chart\n"
+             fi
 
-           # 检查持久化配置
-           if ! yq e '.persistence' "$chart/values.yaml" > /dev/null 2>&1; then
-             ERROR_MSG="${ERROR_MSG}- 缺少持久化配置, 位于 $chart\n"
-           fi
-
-           # 检查资源限制配置
-           if ! yq e '.resources' "$chart/values.yaml" > /dev/null 2>&1; then
-             ERROR_MSG="${ERROR_MSG}- 缺少资源限制配置, 位于 $chart\n"
+             # 检查资源限制配置
+             if ! yq e '.resources' "$chart/values.yaml" > /dev/null 2>&1; then
+               ERROR_MSG="${ERROR_MSG}- 缺少资源限制配置, 位于 $chart\n"
+             fi
            fi
            
            # 检查必需的模板文件
@@ -133,6 +135,11 @@ jobs:
          while IFS= read -r chart; do
            if [ -z "$chart" ]; then
              continue
+           fi
+           
+           if [ ! -f "$chart/Chart.yaml" ]; then
+             echo "Chart.yaml not found for $chart, skipping version check"
+             continue  
            fi
            
            # 检查是否存在旧版本
