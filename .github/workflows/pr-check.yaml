@@ -35,7 +35,11 @@ jobs:
      - name: Get modified directories
        id: changes
        run: |
-         # 获取PR中修改的文件
+         # Debug输出修改的文件
+         echo "Modified files:"
+         git diff --name-only --diff-filter=ACDMRT ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}
+         
+         # 获取修改的charts目录
          CHANGED_FILES=$(git diff --name-only --diff-filter=ACDMRT ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep '^charts/stable/' || true)
          
          if [ -z "$CHANGED_FILES" ]; then
@@ -43,8 +47,17 @@ jobs:
            exit 0
          fi
          
-         # 只获取修改文件所在的chart目录
+         # 输出找到的文件
+         echo "Found changed files:"
+         echo "$CHANGED_FILES"
+         
+         # 提取目录名并去重
          CHANGED_DIRS=$(echo "$CHANGED_FILES" | awk -F/ '/^charts\/stable\/[^\/]+/{print $1"/"$2"/"$3}' | sort -u)
+         
+         # Debug输出
+         echo "Changed directories to check:"
+         echo "$CHANGED_DIRS"
+         
          echo "changed_dirs<<EOF" >> $GITHUB_OUTPUT 
          echo "$CHANGED_DIRS" >> $GITHUB_OUTPUT
          echo "EOF" >> $GITHUB_OUTPUT
@@ -122,12 +135,16 @@ jobs:
              continue
            fi
            
+           # 检查是否存在旧版本
            if ! git show origin/${{ github.base_ref }}:"$chart/Chart.yaml" | yq e '.version' - > /dev/null 2>&1; then
+             echo "No previous version found for $chart, skipping version check"
              continue
            fi
            
            OLD_VERSION=$(git show origin/${{ github.base_ref }}:"$chart/Chart.yaml" | yq e '.version' -)
            NEW_VERSION=$(yq e '.version' "$chart/Chart.yaml")
+           
+           echo "Checking version for $chart: $OLD_VERSION -> $NEW_VERSION"
            
            if [ "$OLD_VERSION" = "$NEW_VERSION" ]; then
              ERROR_MSG="${ERROR_MSG}- Chart 版本未更新: $chart ($OLD_VERSION)\n"
@@ -142,7 +159,7 @@ jobs:
          fi
 
      - name: Create PR Comment
-       if: failure() 
+       if: failure()
        uses: actions/github-script@v7
        with:
          github-token: ${{ secrets.GITHUB_TOKEN }}
