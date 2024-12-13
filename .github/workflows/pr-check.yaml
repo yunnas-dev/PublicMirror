@@ -1,7 +1,7 @@
 name: PR Checks
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened]
     paths:
       - 'charts/**'
@@ -39,11 +39,12 @@ jobs:
           sudo apt-get install -y gh
 
       # 4. Authenticate GitHub CLI (gh) with GITHUB_TOKEN
-      - name: Authenticate GitHub CLI
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "${GITHUB_TOKEN}" | gh auth login --with-token
+      #    这一步可以移除，因为 `gh` CLI 会自动使用 `GITHUB_TOKEN`
+      # - name: Authenticate GitHub CLI
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     echo "${GITHUB_TOKEN}" | gh auth login --with-token
 
       # 5. Get modified directories
       - name: Get modified directories
