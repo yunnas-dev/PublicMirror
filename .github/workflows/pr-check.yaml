@@ -37,7 +37,7 @@ jobs:
       - name: Get modified directories
         id: changes
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 设置 GH_TOKEN 为 GITHUB_TOKEN 的值
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}  # 使用 GH_TOKEN
         run: |
           # 仅获取PR中变更的文件
           CHANGED_FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path' | grep '^charts/stable/' || true)
@@ -181,7 +181,7 @@ jobs:
         if: failure()
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_TOKEN }}  # 使用 GH_TOKEN
           script: |
             let errors = [];
             const validateErrors = `${{ steps.validate.outputs.error_msg }}`;
