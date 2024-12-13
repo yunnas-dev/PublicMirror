@@ -13,19 +13,23 @@ jobs:
       contents: read
       checks: write
       pull-requests: write
-      issues: write  # 确保有添加评论和标签的权限
+      issues: write  # 允许添加评论和标签
 
     steps:
-      - uses: actions/checkout@v3
+      # 1. Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # 获取完整的历史记录
           ref: ${{ github.event.pull_request.head.sha }}
-          
+
+      # 2. Set up Helm
       - name: Set up Helm
         uses: azure/setup-helm@v3
         with:
           version: v3.12.3
 
+      # 3. Install dependencies
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -34,53 +38,61 @@ jobs:
           sudo apt-get install -y jq git
           sudo apt-get install -y gh
 
+      # 4. Authenticate GitHub CLI (gh) with GITHUB_TOKEN
+      - name: Authenticate GitHub CLI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "${GITHUB_TOKEN}" | gh auth login --with-token
+
+      # 5. Get modified directories
       - name: Get modified directories
         id: changes
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 使用 GITHUB_TOKEN
         run: |
           # 获取 PR 中变更的文件
           CHANGED_FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path' | grep '^charts/stable/' || true)
-          
+
           if [ -z "$CHANGED_FILES" ]; then
             echo "No charts modified in this PR"
             exit 0
           fi
-          
+
           echo "Files changed in PR:"
           echo "$CHANGED_FILES"
-          
-          # 提取变更的 chart 目录 
+
+          # 提取变更的 chart 目录
           CHANGED_DIRS=$(echo "$CHANGED_FILES" | awk -F/ '/^charts\/stable\/[^\/]+/{printf "%s/%s/%s\n", $1,$2,$3}' | sort -u)
-          
+
           echo "Charts to validate:"
           echo "$CHANGED_DIRS"
-          
+
+          # 将变更目录设置为输出
           echo "changed_dirs<<EOF" >> $GITHUB_OUTPUT
           echo "$CHANGED_DIRS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+      # 6. Validate Charts Structure
       - name: Validate Charts Structure
         id: validate
         continue-on-error: true
         run: |
           ERROR_MSG=""
-          
+
           while IFS= read -r chart; do
             if [ -z "$chart" ]; then
               continue
             fi
-            
+
             CHART_NAME=$(basename "$chart")
             echo "检查 Chart: $chart"
-            
+
             # 检查必需文件
             for file in Chart.yaml values.yaml values.schema.json README.md; do
               if [ ! -f "$chart/$file" ]; then
                 ERROR_MSG="${ERROR_MSG}- 缺少必需文件: $file, 位于 $chart\n"
               fi
             done
-            
+
             # 检查 Chart.yaml 必需字段
             if [ -f "$chart/Chart.yaml" ]; then
               for field in apiVersion name description version appVersion annotations; do
@@ -107,7 +119,7 @@ jobs:
                 ERROR_MSG="${ERROR_MSG}- 缺少资源限制配置, 位于 $chart\n"
               fi
             fi
-            
+
             # 检查必需的模板文件
             for tmpl in deployment.yaml service.yaml _helpers.tpl; do
               if [ ! -f "$chart/templates/$tmpl" ]; then
@@ -130,7 +142,7 @@ jobs:
               ERROR_MSG="${ERROR_MSG}- Helm lint 检查失败, 位于 $chart\n"
             fi
           done <<< "${{ steps.changes.outputs.changed_dirs }}"
-          
+
           if [ ! -z "$ERROR_MSG" ]; then
             echo "error_msg<<EOF" >> $GITHUB_OUTPUT
             echo -e "$ERROR_MSG" >> $GITHUB_OUTPUT
@@ -138,38 +150,39 @@ jobs:
             exit 1
           fi
 
+      # 7. Check Version Bump
       - name: Check Version Bump
         id: version
         if: success()
         run: |
           ERROR_MSG=""
-          
+
           while IFS= read -r chart; do
             if [ -z "$chart" ]; then
               continue
             fi
-            
+
             if [ ! -f "$chart/Chart.yaml" ]; then
               echo "Chart.yaml not found for $chart, skipping version check"
               continue  
             fi
-            
+
             # 检查是否存在旧版本
-            if ! git show origin/test:"$chart/Chart.yaml" | yq e '.version' - > /dev/null 2>&1; then
+            if ! git show origin/main:"$chart/Chart.yaml" | yq e '.version' - > /dev/null 2>&1; then
               echo "No previous version found for $chart, skipping version check"
               continue
             fi
-            
-            OLD_VERSION=$(git show origin/test:"$chart/Chart.yaml" | yq e '.version' -)
+
+            OLD_VERSION=$(git show origin/main:"$chart/Chart.yaml" | yq e '.version' -)
             NEW_VERSION=$(yq e '.version' "$chart/Chart.yaml")
-            
+
             echo "Checking version for $chart: $OLD_VERSION -> $NEW_VERSION"
-            
+
             if [ "$OLD_VERSION" = "$NEW_VERSION" ]; then
               ERROR_MSG="${ERROR_MSG}- Chart 版本未更新: $chart ($OLD_VERSION)\n"
             fi
           done <<< "${{ steps.changes.outputs.changed_dirs }}"
-          
+
           if [ ! -z "$ERROR_MSG" ]; then
             echo "error_msg<<EOF" >> $GITHUB_OUTPUT
             echo -e "$ERROR_MSG" >> $GITHUB_OUTPUT 
@@ -177,41 +190,31 @@ jobs:
             exit 1
           fi
 
+      # 8. Create PR Comment and Add Label using peter-evans/create-or-update-comment
       - name: Create PR Comment and Add Label
         if: failure()
-        uses: actions/github-script@v7
+        uses: peter-evans/create-or-update-comment@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}  # 使用 GITHUB_TOKEN
-          script: |
-            let errors = [];
-            const validateErrors = `${{ steps.validate.outputs.error_msg }}`;
-            const versionErrors = `${{ steps.version.outputs.error_msg }}`;
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## ❌ Chart 验证失败
 
-            if (validateErrors) errors.push(...validateErrors.split('\n'));
-            if (versionErrors) errors.push(...versionErrors.split('\n'));
+            - ${{ steps.validate.outputs.error_msg }}
+            - ${{ steps.version.outputs.error_msg }}
 
-            const body = [
-              '## ❌ Chart 验证失败',
-              '',
-              errors.filter(Boolean).join('\n'),
-              '',
-              '### 修复建议',
-              '1. 请检查上述失败项',
-              '2. 参考 [Chart开发规范](../docs/charts/STANDARDS.md)',
-              '3. 使用 `helm lint` 验证语法', 
-              '4. 确保所有必需文件和字段完整',
-              '',
-              '修复后重新提交即可触发检查。'
-            ].join('\n');
+            ### 修复建议
+            1. 请检查上述失败项
+            2. 参考 [Chart开发规范](../docs/charts/STANDARDS.md)
+            3. 使用 `helm lint` 验证语法
+            4. 确保所有必需文件和字段完整
 
-            await github.rest.issues.createComment({
-              ...context.repo,
-              issue_number: context.issue.number,
-              body
-            });
+            修复后重新提交即可触发检查。
 
-            await github.rest.issues.addLabels({
-              ...context.repo,
-              issue_number: context.issue.number,
-              labels: ['needs-fix']
-            });
+      # 9. Add Label 'needs-fix' using actions-ecosystem/action-add-labels
+      - name: Add Label 'needs-fix'
+        if: failure()
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: 'needs-fix'
