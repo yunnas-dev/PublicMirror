@@ -1,4 +1,3 @@
-# pr-check.yaml
 name: PR Checks
 
 on:
@@ -36,119 +35,132 @@ jobs:
        id: files
        run: |
          git fetch origin ${{ github.base_ref }}
-         FILES=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep "^charts/stable/")
-         echo "files=$FILES" >> $GITHUB_OUTPUT
+         CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep "^charts/stable/")
+         {
+           echo 'files<<EOF'
+           echo "$CHANGED_FILES"
+           echo 'EOF'
+         } >> $GITHUB_OUTPUT
 
      - name: Get changed charts
        id: charts
        if: steps.files.outputs.files != ''
        run: |
-         CHANGED=$(echo "${{ steps.files.outputs.files }}" | grep -o "charts/stable/[^/]*" | sort -u)
-         echo "changed=$CHANGED" >> $GITHUB_OUTPUT
+         CHANGED_DIRS=$(echo "${{ steps.files.outputs.files }}" | grep -o "charts/stable/[^/]*" | sort -u)
+         {
+           echo 'changed<<EOF' 
+           echo "$CHANGED_DIRS"
+           echo 'EOF'
+         } >> $GITHUB_OUTPUT
 
      - name: Validate charts
        if: steps.charts.outputs.changed != ''
        id: validate
        run: |
+         set -e
          FAILED=0
          ERROR_MSG=""
          
-         for chart in ${{ steps.charts.outputs.changed }}; do
+         while IFS= read -r chart; do
+           [[ -z "$chart" ]] && continue
+           
+           echo "Validating chart: $chart"
+           
            if [[ ! -d "$chart" ]]; then
-             ERROR_MSG="${ERROR_MSG}- 目录不存在: $chart\n"
+             ERROR_MSG+="- Directory not found: $chart\n"
              FAILED=1
              continue
            fi
 
-           # 检查必需文件
+           # Check required files
            for file in Chart.yaml values.yaml values.schema.json README.md; do
              if [[ ! -f "$chart/$file" ]]; then
-               ERROR_MSG="${ERROR_MSG}- 缺少必需文件: $file in $chart\n"
+               ERROR_MSG+="- Missing required file: $file in $chart\n"
                FAILED=1
              fi
            done
 
-           # 检查Chart.yaml必需字段
+           # Check Chart.yaml fields
            if [[ -f "$chart/Chart.yaml" ]]; then
              for field in apiVersion name description version appVersion annotations; do
                if ! yq e ".$field" "$chart/Chart.yaml" >/dev/null 2>&1; then
-                 ERROR_MSG="${ERROR_MSG}- Chart.yaml缺少必需字段: $field in $chart\n"
+                 ERROR_MSG+="- Missing required field in Chart.yaml: $field in $chart\n"
                  FAILED=1
                fi
              done
            fi
 
-           # 检查镜像仓库
+           # Check image registry
            if [[ -f "$chart/values.yaml" ]]; then
              if ! yq e '.image.imageRegistry' "$chart/values.yaml" | grep -q "registry-2.yunna.net"; then
-               ERROR_MSG="${ERROR_MSG}- 镜像仓库地址必须为registry-2.yunna.net in $chart\n"
-               FAILED=1
+               ERROR_MSG+="- Image registry must be registry-2.yunna.net in $chart\n"
+               FAILED=1 
              fi
            fi
 
-           # 检查必需模板
+           # Check template files
            for tmpl in deployment.yaml service.yaml _helpers.tpl; do
              if [[ ! -f "$chart/templates/$tmpl" ]]; then
-               ERROR_MSG="${ERROR_MSG}- 缺少模板文件: $tmpl in $chart\n"
+               ERROR_MSG+="- Missing template file: $tmpl in $chart\n" 
                FAILED=1
              fi
            done
-           
-           # Helm lint
+
+           # Run helm lint
            if ! helm lint "$chart" >/dev/null 2>&1; then
-             ERROR_MSG="${ERROR_MSG}- Helm lint失败: $chart\n"
+             ERROR_MSG+="- Helm lint failed for $chart\n"
              FAILED=1
            fi
 
-           # 检查版本是否更新
-           if [[ -f "$chart/Chart.yaml" ]]; then
-             if git show origin/${{ github.base_ref }}:"$chart/Chart.yaml" >/dev/null 2>&1; then
-               OLD_VERSION=$(git show origin/${{ github.base_ref }}:"$chart/Chart.yaml" | yq e '.version' -)
-               NEW_VERSION=$(yq e '.version' "$chart/Chart.yaml")
-               if [[ "$OLD_VERSION" == "$NEW_VERSION" ]]; then
-                 ERROR_MSG="${ERROR_MSG}- Chart版本未更新: $chart ($OLD_VERSION)\n"
-                 FAILED=1
-               fi
+           # Check version bump
+           if [[ -f "$chart/Chart.yaml" ]] && git show origin/${{ github.base_ref }}:"$chart/Chart.yaml" >/dev/null 2>&1; then
+             OLD_VERSION=$(git show origin/${{ github.base_ref }}:"$chart/Chart.yaml" | yq e '.version' -)
+             NEW_VERSION=$(yq e '.version' "$chart/Chart.yaml")
+             if [[ "$OLD_VERSION" == "$NEW_VERSION" ]]; then
+               ERROR_MSG+="- Chart version not updated: $chart ($OLD_VERSION)\n"
+               FAILED=1
              fi
            fi
-         done
+           
+         done <<< "${{ steps.charts.outputs.changed }}"
 
-         echo "error_msg<<EOF" >> $GITHUB_OUTPUT
-         echo -e "$ERROR_MSG" >> $GITHUB_OUTPUT
-         echo "EOF" >> $GITHUB_OUTPUT
+         {
+           echo 'error_msg<<EOF'
+           echo -e "$ERROR_MSG"
+           echo 'EOF'
+         } >> $GITHUB_OUTPUT
          
          exit $FAILED
 
-     - name: Post comment
+     - name: Post PR comment
        if: failure()
        uses: actions/github-script@v7
        with:
          script: |
            const errors = process.env.error_msg?.split('\n').filter(Boolean) || [];
            if (errors.length === 0) return;
-           
-           const body = `## ❌ Chart 检查失败
 
-           ### 错误详情
+           const body = `## ❌ Chart 验证失败
+
+           ### 错误详情：
            ${errors.map(e => e.trim()).join('\n')}
 
-           ### 修复建议
-           1. 请检查上述错误
-           2. 参考[Chart开发规范](../docs/charts/STANDARDS.md)
+           ### 修复建议：
+           1. 检查上述错误项
+           2. 参考 [Chart开发规范](../docs/charts/STANDARDS.md)
            3. 确保必需文件和字段完整
-           4. 使用\`helm lint\`检查语法
-           
-           修复后重新提交即可触发检查。
-           `;
+           4. 使用 \`helm lint\` 验证语法
+
+           修复后重新提交即可触发检查。`;
 
            await github.rest.issues.createComment({
              ...context.repo,
              issue_number: context.issue.number,
-             body: body
+             body
            });
 
            await github.rest.issues.addLabels({
-             ...context.repo,
+             ...context.repo, 
              issue_number: context.issue.number,
              labels: ['needs-fix']
            });
