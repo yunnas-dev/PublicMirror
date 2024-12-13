@@ -10,25 +10,12 @@ spec:
     matchLabels:
       {{- include "redis.selectorLabels" . | nindent 6 }}
   template:
-    metadata:
-      labels:
-        {{- include "redis.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ .Chart.redis }}
           image: "{{ .Values.image.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - containerPort: 80
-          env:
-            {{- range $key, $value := .Values.env }}
-            - name: {{ $key }}
-              value: {{ $value | quote }}
-            {{- end }}
-          volumeMounts:
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:            # 如果有持久化需求必须配置
             - name: data
-              mountPath: /var/www/redis/Data # 默认持久化路径
-      volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: {{ include "redis.fullname" . }}-pvc
+              mountPath: /path
