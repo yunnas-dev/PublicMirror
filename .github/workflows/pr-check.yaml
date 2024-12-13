@@ -34,12 +34,15 @@ jobs:
           sudo apt-get install -y jq git
           sudo apt-get install -y gh
 
+      - name: Authenticate GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 或 ${{ secrets.GH_TOKEN }}
+        run: |
+          echo $GH_TOKEN | gh auth login --with-token
+
       - name: Get modified directories
         id: changes
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}  # 使用 GH_TOKEN
         run: |
-          # 仅获取PR中变更的文件
           CHANGED_FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path' | grep '^charts/stable/' || true)
           
           if [ -z "$CHANGED_FILES" ]; then
@@ -181,7 +184,7 @@ jobs:
         if: failure()
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GH_TOKEN }}  # 使用 GH_TOKEN
+          github-token: ${{ secrets.GITHUB_TOKEN }}  # 使用 GITHUB_TOKEN
           script: |
             let errors = [];
             const validateErrors = `${{ steps.validate.outputs.error_msg }}`;
