@@ -113,6 +113,16 @@ jobs:
              fi
            done
 
+           # 检查_helpers.tpl
+           if [ -f "$chart/templates/_helpers.tpl" ]; then
+             if ! grep -q "{{- define \"${chart##*/}.name\"" "$chart/templates/_helpers.tpl"; then
+               ERROR_MSG="${ERROR_MSG}- _helpers.tpl 中缺少 ${chart##*/}.name 定义, 位于 $chart\n"
+             fi
+             if ! grep -q "{{- define \"${chart##*/}.labels\"" "$chart/templates/_helpers.tpl"; then
+               ERROR_MSG="${ERROR_MSG}- _helpers.tpl 中缺少 ${chart##*/}.labels 定义, 位于 $chart\n" 
+             fi
+           fi
+
            # Helm lint 检查
            if ! helm lint "$chart"; then
              ERROR_MSG="${ERROR_MSG}- Helm lint 检查失败, 位于 $chart\n"
@@ -171,34 +181,32 @@ jobs:
        with:
          github-token: ${{ secrets.GITHUB_TOKEN }}
          script: |
-           let errors = [];
-           if ('${{ steps.validate.outputs.error_msg }}') {
-             errors.push(...'${{ steps.validate.outputs.error_msg }}'.split('\n'));
-           }
-           if ('${{ steps.version.outputs.error_msg }}') {
-             errors.push(...'${{ steps.version.outputs.error_msg }}'.split('\n')); 
-           }
-           
-           const body = `## ❌ Chart 验证失败
+           try {
+             let errors = [];
+             const validateErrors = '${{ steps.validate.outputs.error_msg }}';
+             const versionErrors = '${{ steps.version.outputs.error_msg }}';
+             
+             if (validateErrors) {
+               errors.push(...validateErrors.split('\n'));
+             }
+             if (versionErrors) {
+               errors.push(...versionErrors.split('\n')); 
+             }
+             
+             const body = `## ❌ Chart 验证失败\n\n${errors.filter(Boolean).join('\n')}\n\n### 修复建议\n1. 请检查上述失败项\n2. 参考 [Chart开发规范](../docs/charts/STANDARDS.md)\n3. 使用 \`helm lint\` 验证语法\n4. 确保所有必需文件和字段完整\n\n修复后重新提交即可触发检查。`;
+             
+             await github.rest.issues.createComment({
+               ...context.repo,
+               issue_number: context.issue.number,
+               body
+             });
 
-           ${errors.filter(Boolean).join('\n')}
-           
-           ### 修复建议
-           1. 请检查上述失败项
-           2. 参考 [Chart开发规范](../docs/charts/STANDARDS.md)
-           3. 使用 \`helm lint\` 验证语法
-           4. 确保所有必需文件和字段完整
-           
-           修复后重新提交即可触发检查。`;
-           
-           await github.rest.issues.createComment({
-             ...context.repo,
-             issue_number: context.issue.number,
-             body
-           });
-           
-           await github.rest.issues.addLabels({
-             ...context.repo,
-             issue_number: context.issue.number,
-             labels: ['needs-fix']
-           });
+             await github.rest.issues.addLabels({
+               ...context.repo,
+               issue_number: context.issue.number,
+               labels: ['needs-fix']
+             });
+           } catch (error) {
+             console.error('Error creating comment:', error);
+             throw error;
+           }
