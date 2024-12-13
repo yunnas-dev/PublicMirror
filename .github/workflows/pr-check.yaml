@@ -49,22 +49,43 @@ jobs:
                 EXIT_CODE=1
               fi
             done
+
+            # 检查镜像仓库配置
+            if ! yq e '.image.imageRegistry' "$chart/values.yaml" | grep -q "registry-2.yunna.net"; then
+              echo "::error::镜像仓库地址必须为 registry-2.yunna.net"
+              EXIT_CODE=1
+            fi
+
+            # 检查持久化配置
+            if ! yq e '.persistence' "$chart/values.yaml" > /dev/null 2>&1; then
+              echo "::error::缺少持久化配置"
+              EXIT_CODE=1
+            fi
+
+            # 检查资源限制配置
+            if ! yq e '.resources' "$chart/values.yaml" > /dev/null 2>&1; then
+              echo "::error::缺少资源限制配置"
+              EXIT_CODE=1
+            fi
             
+            # 检查必需的模板文件
+            template_files=("deployment.yaml" "service.yaml" "_helpers.tpl")
+            for tmpl in "${template_files[@]}"; do
+              if [ ! -f "$chart/templates/$tmpl" ]; then
+                echo "::error::缺少必需的模板文件：$tmpl"
+                EXIT_CODE=1
+              fi
+            done
+
             # Helm lint 检查
             if ! helm lint "$chart"; then
               echo "::error::Helm lint 检查失败：$chart"
               EXIT_CODE=1
             fi
             
-            # 检查模板渲染
-            if ! helm template test "$chart"; then
-              echo "::error::Helm template 渲染失败：$chart"
-              EXIT_CODE=1
-            fi
-
-            # values.schema.json 格式检查
-            if ! jq empty "$chart/values.schema.json"; then
-              echo "::error::values.schema.json 格式无效：$chart"
+            # Schema 验证
+            if ! helm template test "$chart" > /dev/null; then
+              echo "::error::values.schema.json 验证失败"
               EXIT_CODE=1
             fi
           done
@@ -74,7 +95,6 @@ jobs:
       - name: Check Chart Version Bump
         if: github.event_name == 'pull_request'
         run: |
-          EXIT_CODE=0
           git fetch origin ${{ github.base_ref }}
           
           for chart in $(find ./charts/stable -name Chart.yaml -exec dirname {} \;); do
@@ -82,13 +102,16 @@ jobs:
               continue
             fi
             
+            if ! git show origin/${{ github.base_ref }}:"$chart/Chart.yaml" | yq e '.version' - > /dev/null 2>&1; then
+              echo "::error::无法获取旧版本号"
+              continue
+            fi
+            
             OLD_VERSION=$(git show origin/${{ github.base_ref }}:"$chart/Chart.yaml" | yq e '.version' -)
             NEW_VERSION=$(yq e '.version' "$chart/Chart.yaml")
             
             if [ "$OLD_VERSION" = "$NEW_VERSION" ]; then
-              echo "::error::Chart版本未更新：$chart ($OLD_VERSION)"
-              EXIT_CODE=1
+              echo "::error::Chart 版本未更新：$chart ($OLD_VERSION)"
+              exit 1
             fi
           done
-          
-          exit $EXIT_CODE
