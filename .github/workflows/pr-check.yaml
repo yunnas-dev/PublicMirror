@@ -22,7 +22,7 @@ jobs:
             # 检查必需文件
             for file in Chart.yaml values.yaml values.schema.json README.md; do
               if [ ! -f "$chart/$file" ]; then
-                echo "❌ Missing required file: $file in $chart"
+                echo "❌ 缺少必需文件：$file，位于 $chart"
                 exit 1
               fi
             done
@@ -31,26 +31,26 @@ jobs:
             required_fields=("apiVersion" "name" "description" "version" "appVersion" "annotations")
             for field in "${required_fields[@]}"; do
               if ! yq e ".$field" "$chart/Chart.yaml" > /dev/null 2>&1; then
-                echo "❌ Missing required field '$field' in Chart.yaml"
+                echo "❌ Chart.yaml 中缺少必需字段：$field"
                 exit 1
               fi
             done
             
             # 检查资源配置
             if ! grep -q "resources:" "$chart/values.yaml"; then
-              echo "❌ Missing resources configuration in values.yaml"
+              echo "❌ values.yaml 中缺少资源配置"
               exit 1
             fi
             
             # 检查持久化配置
             if ! grep -q "persistence:" "$chart/values.yaml"; then
-              echo "❌ Missing persistence configuration in values.yaml"
+              echo "❌ values.yaml 中缺少持久化配置"
               exit 1
             fi
 
             # 检查环境变量定义
             if ! grep -q "env:" "$chart/values.yaml"; then
-              echo "❌ Missing env configuration in values.yaml"
+              echo "❌ values.yaml 中缺少环境变量配置"
               exit 1
             fi
           done
@@ -58,10 +58,10 @@ jobs:
       - name: Validate Helm Templates
         run: |
           for chart in $(find ./charts/stable -name Chart.yaml -exec dirname {} \;); do
-            echo "Linting chart: $chart"
+            echo "正在检查 Chart：$chart"
             helm lint "$chart"
             
-            echo "Testing template rendering: $chart"
+            echo "正在测试模板渲染：$chart"
             helm template test "$chart"
           done
 
@@ -69,7 +69,7 @@ jobs:
         run: |
           for schema in $(find ./charts/stable -name values.schema.json); do
             if ! jq empty "$schema"; then
-              echo "❌ Invalid JSON schema: $schema"
+              echo "❌ JSON Schema 格式无效：$schema"
               exit 1
             fi
             
@@ -77,7 +77,7 @@ jobs:
             required_props=("replicaCount" "resources" "persistence" "env")
             for prop in "${required_props[@]}"; do
               if ! jq -e ".properties.$prop" "$schema" > /dev/null; then
-                echo "❌ Missing required property '$prop' in schema"
+                echo "❌ Schema 中缺少必需属性：$prop"
                 exit 1
               fi
             done
