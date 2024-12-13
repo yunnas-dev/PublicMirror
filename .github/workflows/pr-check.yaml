@@ -40,98 +40,116 @@ jobs:
 
      - name: Validate charts
        if: steps.files.outputs.files != ''
+       id: validate
        run: |
          set -e
          FAILED=0
+         ERROR_MSG=""
+         
+         echo "::group::Chart Validation Results"
          
          for chart in $(echo "${{ steps.files.outputs.files }}" | grep -o "charts/stable/[^/]*" | sort -u); do
-           echo "::group::Validating $chart"
+           echo "Checking $chart..."
            
-           # Critical checks
            if [[ ! -d "$chart" ]]; then
-             echo "::error::Directory not found: $chart"
+             echo "::error file=$chart::Directory not found"
+             echo "- Directory not found: $chart" >> error_log.txt
              FAILED=1
              continue
            fi
            
-           # File checks
            for file in Chart.yaml values.yaml values.schema.json README.md; do
              if [[ ! -f "$chart/$file" ]]; then
-               echo "::error::Missing file $file in $chart"
+               echo "::error file=$chart/$file::Missing required file"
+               echo "- Missing required file: $file in $chart" >> error_log.txt
                FAILED=1
              fi
            done
            
-           # Chart.yaml fields check
            if [[ -f "$chart/Chart.yaml" ]]; then
              for field in apiVersion name description version appVersion annotations; do
                if ! yq e ".$field" "$chart/Chart.yaml" >/dev/null 2>&1; then
-                 echo "::error::Missing required field $field in $chart/Chart.yaml"
+                 echo "::error file=$chart/Chart.yaml::Missing field: $field"
+                 echo "- Missing field $field in Chart.yaml: $chart" >> error_log.txt
                  FAILED=1
                fi
              done
            fi
            
-           # Registry check
            if [[ -f "$chart/values.yaml" ]]; then
-             if ! yq e '.image.imageRegistry' "$chart/values.yaml" | grep -q "registry-2.yunna.net"; then
-               echo "::error::Image registry must be registry-2.yunna.net in $chart"
+             registry=$(yq e '.image.imageRegistry' "$chart/values.yaml" || echo "")
+             if [[ "$registry" != "registry-2.yunna.net" ]]; then
+               echo "::error file=$chart/values.yaml::Image registry must be registry-2.yunna.net, found: $registry"
+               echo "- Image registry must be registry-2.yunna.net in $chart" >> error_log.txt
                FAILED=1
              fi
            fi
            
-           # Template files check
            for tmpl in deployment.yaml service.yaml _helpers.tpl; do
              if [[ ! -f "$chart/templates/$tmpl" ]]; then
-               echo "::error::Missing template file $tmpl in $chart"
+               echo "::error file=$chart/templates/$tmpl::Missing template file"
+               echo "- Missing template file: $tmpl in $chart" >> error_log.txt
                FAILED=1
              fi
            done
            
-           # Helm lint check
-           if ! helm lint "$chart" >/dev/null 2>&1; then
-             echo "::error::Helm lint failed for $chart"
+           if ! helm lint "$chart" > helm-lint.log 2>&1; then
+             echo "::error file=$chart::Helm lint failed:"
+             cat helm-lint.log
+             echo "- Helm lint failed for $chart" >> error_log.txt
              FAILED=1
            fi
            
-           # Version check
            if [[ -f "$chart/Chart.yaml" ]]; then
-             OLD_VERSION=""
              if git show origin/${{ github.base_ref }}:"$chart/Chart.yaml" >/dev/null 2>&1; then
                OLD_VERSION=$(git show origin/${{ github.base_ref }}:"$chart/Chart.yaml" | yq e '.version' -)
                NEW_VERSION=$(yq e '.version' "$chart/Chart.yaml")
                if [[ "$OLD_VERSION" == "$NEW_VERSION" ]]; then
-                 echo "::error::Chart version not updated in $chart (current: $NEW_VERSION)"
+                 echo "::error file=$chart/Chart.yaml::Version not updated ($OLD_VERSION)"
+                 echo "- Chart version not updated: $chart ($OLD_VERSION)" >> error_log.txt
                  FAILED=1
                fi
              fi
            fi
-           
-           echo "::endgroup::"
          done
+         
+         echo "::endgroup::"
+         
+         if [ -f error_log.txt ]; then
+           echo "ERRORS=$(cat error_log.txt)" >> $GITHUB_OUTPUT
+         fi
          
          exit $FAILED
 
-     - name: Create status check
+     - name: Create summary
        if: always()
-       shell: bash
        run: |
-         cat >> $GITHUB_STEP_SUMMARY << EOF
-         ## Chart Validation Results
+         echo "## Chart Validation Results" >> $GITHUB_STEP_SUMMARY
+         echo "" >> $GITHUB_STEP_SUMMARY
          
-         ### Validation Criteria
-         - Required files present (Chart.yaml, values.yaml, values.schema.json, README.md)
-         - Chart.yaml fields complete
-         - Image registry set to registry-2.yunna.net
-         - Template files present
-         - Version updated
-         - Helm lint passes
+         if [ -f error_log.txt ]; then
+           echo "### ❌ Validation Errors" >> $GITHUB_STEP_SUMMARY
+           echo "" >> $GITHUB_STEP_SUMMARY
+           cat error_log.txt >> $GITHUB_STEP_SUMMARY
+         else
+           echo "### ✅ All checks passed" >> $GITHUB_STEP_SUMMARY
+         fi
          
-         ### Next Steps
-         - Fix any errors shown above
-         - Refer to [Chart开发规范](../docs/charts/STANDARDS.md)
-         - Run helm lint locally to check syntax
-         - Ensure all required files and fields are complete
+         echo "" >> $GITHUB_STEP_SUMMARY
+         echo "### Validation Criteria" >> $GITHUB_STEP_SUMMARY
+         echo "- Required files present (Chart.yaml, values.yaml, values.schema.json, README.md)" >> $GITHUB_STEP_SUMMARY
+         echo "- Chart.yaml fields complete" >> $GITHUB_STEP_SUMMARY
+         echo "- Image registry set to registry-2.yunna.net" >> $GITHUB_STEP_SUMMARY
+         echo "- Template files present" >> $GITHUB_STEP_SUMMARY
+         echo "- Version updated" >> $GITHUB_STEP_SUMMARY
+         echo "- Helm lint passes" >> $GITHUB_STEP_SUMMARY
          
-         Changes will be validated automatically when you update the PR.
-         EOF
+         echo "" >> $GITHUB_STEP_SUMMARY
+         echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+         echo "1. Fix any errors shown above" >> $GITHUB_STEP_SUMMARY  
+         echo "2. Refer to [Chart开发规范](../docs/charts/STANDARDS.md)" >> $GITHUB_STEP_SUMMARY
+         echo "3. Run helm lint locally to check syntax" >> $GITHUB_STEP_SUMMARY
+         echo "4. Ensure all required files and fields are complete" >> $GITHUB_STEP_SUMMARY
+         
+         echo "" >> $GITHUB_STEP_SUMMARY
+         echo "Changes will be validated automatically when you update the PR." >> $GITHUB_STEP_SUMMARY
