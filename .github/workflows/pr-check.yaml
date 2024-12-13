@@ -36,6 +36,8 @@ jobs:
 
       - name: Get modified directories
         id: changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # 设置 GH_TOKEN 为 GITHUB_TOKEN 的值
         run: |
           # 仅获取PR中变更的文件
           CHANGED_FILES=$(gh pr view ${{ github.event.pull_request.number }} --json files --jq '.files[].path' | grep '^charts/stable/' || true)
@@ -88,7 +90,7 @@ jobs:
               done
             fi
 
-            # 检查values.yaml必需配置
+            # 检查 values.yaml 必需配置
             if [ -f "$chart/values.yaml" ]; then
               # 检查镜像仓库配置
               if ! yq e '.image.imageRegistry' "$chart/values.yaml" | grep -q "registry-2.yunna.net"; then
@@ -113,7 +115,7 @@ jobs:
               fi
             done
 
-            # 检查_helpers.tpl
+            # 检查 _helpers.tpl
             if [ -f "$chart/templates/_helpers.tpl" ]; then
               if ! grep -q "{{- define \"$CHART_NAME.name\"" "$chart/templates/_helpers.tpl"; then
                 ERROR_MSG="${ERROR_MSG}- _helpers.tpl 中缺少 $CHART_NAME.name 定义\n"
@@ -153,12 +155,12 @@ jobs:
             fi
             
             # 检查是否存在旧版本
-            if ! git show origin/${{ github.base_ref }}:"$chart/Chart.yaml" | yq e '.version' - > /dev/null 2>&1; then
+            if ! git show origin/test:"$chart/Chart.yaml" | yq e '.version' - > /dev/null 2>&1; then
               echo "No previous version found for $chart, skipping version check"
               continue
             fi
             
-            OLD_VERSION=$(git show origin/${{ github.base_ref }}:"$chart/Chart.yaml" | yq e '.version' -)
+            OLD_VERSION=$(git show origin/test:"$chart/Chart.yaml" | yq e '.version' -)
             NEW_VERSION=$(yq e '.version' "$chart/Chart.yaml")
             
             echo "Checking version for $chart: $OLD_VERSION -> $NEW_VERSION"
@@ -201,7 +203,7 @@ jobs:
               '',
               '修复后重新提交即可触发检查。'
             ].join('\n');
-            
+
             await github.rest.issues.createComment({
               ...context.repo,
               issue_number: context.issue.number,
