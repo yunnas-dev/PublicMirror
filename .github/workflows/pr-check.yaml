@@ -31,13 +31,24 @@ validate-charts:
       id: files
       run: |
         git fetch origin ${{ github.base_ref }}
-        CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep "^charts/stable/[^/]*/")
-        CHANGED_CHARTS=$(echo "$CHANGED_FILES" | cut -d'/' -f1-3 | sort -u)
-        {
-          echo 'charts<<EOF'
-          echo "$CHANGED_CHARTS"
-          echo 'EOF'
-        } >> $GITHUB_OUTPUT
+        # 获取修改的文件,只取 charts/stable/ 下的目录
+        CHANGED_DIRS=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep "^charts/stable/" | cut -d/ -f1-3 | sort -u)
+        # 确保输出格式正确
+        if [ -n "$CHANGED_DIRS" ]; then
+          echo "charts<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED_DIRS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "Found changed charts:"
+          echo "$CHANGED_DIRS"
+        else
+          echo "No charts changed"
+          echo "charts=" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Debug changed files
+      run: |
+        echo "Changed charts from previous step:"
+        echo "${{ steps.files.outputs.charts }}"
 
     - name: Validate charts
       if: steps.files.outputs.charts != ''
@@ -45,11 +56,15 @@ validate-charts:
       run: |
         set -e
         FAILED=0
-        ERROR_MSG=""
         
         echo "::group::Chart Validation Results"
+        echo "Validating following charts:"
+        echo "${{ steps.files.outputs.charts }}"
         
         while IFS= read -r chart; do
+          # 跳过空行
+          [ -z "$chart" ] && continue
+          
           echo "Checking $chart..."
           
           if [[ ! -d "$chart" ]]; then
