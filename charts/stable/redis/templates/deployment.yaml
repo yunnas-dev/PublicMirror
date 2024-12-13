@@ -13,7 +13,6 @@ spec:
     metadata:
       labels:
         {{- include "redis.labels" . | nindent 8 }}
-        {{- include "redis.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: redis
